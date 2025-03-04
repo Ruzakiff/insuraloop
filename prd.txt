@@ -1,0 +1,117 @@
+# **Product Requirements Document (PRD) for MVP: Insurance Referral System**
+
+## **1. Overview**
+### **1.1 Product Name:**  
+**ReferralBoost** (Placeholder name)
+
+### **1.2 Purpose & Goals**  
+ReferralBoost is a **Django-based referral system** that helps insurance agents acquire high-quality leads at a lower cost by **automating referral tracking, lead distribution, and payouts**.  
+
+The MVP will:  
+✅ Enable agents to **generate leads via referrals** (customers, dealerships, mortgage brokers).  
+✅ Provide **trackable referral links** for each agent and partner.  
+✅ Automatically **route leads to the correct agent**.  
+✅ **Sync leads to agent’s CRM** via email/Zapier API.  
+✅ Automate **referral rewards (cash, gift cards, or discounts)**.  
+
+### **1.3 Why This MVP?**  
+✔ Builds **the core infrastructure** (lead intake, tracking, CRM integration).  
+✔ Generates **immediate revenue** for agents.  
+✔ Lays the groundwork for **future features** (automated renewals, lead marketplace).  
+
+---
+
+## **2. System Architecture**
+### **2.1 Django Apps in Project**
+✅ **`referralsystem` (Core Referral Functionality)**  
+✅ **`accounts` (User Authentication & Agent Management)**  
+
+---
+
+## **3. Features & Functional Requirements**
+### **3.1 Referral System (`referralsystem` app)**
+| **Feature** | **Description** | **Priority** |
+|------------|---------------|-------------|
+| **Referral Link Generator** | Each agent/partner gets a **unique referral link** (e.g., `agentinsurance.com/ref123`). | ✅ High |
+| **Lead Capture Form** | A hosted form where referred leads enter **name, phone, email, insurance type**. | ✅ High |
+| **QR Code Generation** | QR codes for offline referrals (dealerships, brokers). | ✅ Medium |
+| **Lead Assignment & CRM Sync** | New leads are **automatically assigned** to agents and sent via email/Zapier API. | ✅ High |
+| **Referral Reward Processing** | Automated payout system (cash, gift cards, or discounts). | ✅ High |
+| **Dashboard for Agents** | View incoming leads, track referral performance, pending payouts. | ✅ Medium |
+
+---
+
+### **3.2 Accounts & Authentication (`accounts` app)**
+| **Feature** | **Description** | **Priority** |
+|------------|---------------|-------------|
+| **User Registration/Login** | Agents can **sign up, log in, and manage accounts**. | ✅ High |
+| **Business Partner Accounts** | Dealerships/mortgage brokers get **separate referral accounts**. | ✅ Medium |
+| **Admin Dashboard** | Superusers can **manage referrals, agents, and payouts**. | ✅ High |
+
+---
+
+## **4. Data Model**
+### **4.1 Referral System Models (`referralsystem` app)**
+| **Model** | **Fields** | **Description** |
+|---------|---------|----------------|
+| `ReferralSource` | `id`, `name`, `type`, `email`, `phone`, `agent_assigned` | Stores **who made the referral** (customer, dealership, etc.). |
+| `Referral` | `id`, `source`, `lead_name`, `lead_email`, `lead_phone`, `insurance_type`, `status`, `assigned_agent` | Tracks each **lead submitted via referral**. |
+| `RewardPayout` | `id`, `referral`, `amount`, `payout_status`, `payment_method` | Logs **referral rewards & payout status**. |
+
+---
+
+### **4.2 User & Accounts Models (`accounts` app)**
+| **Model** | **Fields** | **Description** |
+|---------|---------|----------------|
+| `UserProfile` | `id`, `user`, `role` (agent, partner, admin) | Extends Django's `User` model to include agent roles. |
+| `AgentProfile` | `id`, `user`, `agency_name`, `crm_integration` | Stores agent details & CRM sync settings. |
+
+---
+
+## **5. API Endpoints**
+### **5.1 Referral API (`referralsystem` app)**
+| **Endpoint** | **Method** | **Functionality** |
+|------------|---------|---------------|
+| `/api/referrals/create/` | `POST` | Capture new referral lead. |
+| `/api/referrals/{id}/assign/` | `POST` | Assign a lead to an agent. |
+| `/api/referrals/{id}/status/` | `GET` | Get referral status. |
+| `/api/rewards/process/` | `POST` | Trigger reward payout. |
+
+---
+
+## **6. Tech Stack**
+✅ **Backend:** Django (Python), PostgreSQL  
+✅ **Frontend:** Simple HTML/CSS (optional React for dashboard later)  
+✅ **Auth:** Django Auth (OAuth2 for CRM integration)  
+✅ **APIs:** Zapier API for CRM sync, Stripe/Plaid for payouts  
+
+---
+
+## **7. Compliance Considerations**
+✅ **Referral rewards must be fixed & not depend on policy purchase.**  
+✅ **Referral sources cannot discuss insurance policy details.**  
+✅ **State-specific caps on referral amounts (e.g., $25 limit in some states).**  
+
+---
+
+## **8. Roadmap**
+### **🚀 Phase 1 (4-6 Weeks)**
+✅ Build **Referral System Backend** (tracking, API, payouts).  
+✅ Create **Lead Capture Page** (basic form for leads).  
+✅ Enable **Email & CRM Integration** (Zapier sync).  
+✅ Develop **Agent Dashboard** (view leads & rewards).  
+
+### **🚀 Phase 2 (Post-MVP)**
+✅ Add **QR Code Generator** for offline referrals.  
+✅ Implement **Admin Dashboard** for analytics.  
+✅ Expand **Payment Options** (PayPal, ACH, Stripe).  
+✅ Launch **Business Partner Referral Portal** (for dealerships).  
+
+---
+
+## **9. Next Steps**
+1️⃣ Do you want **wireframes/mockups** for the agent dashboard & lead capture page?  
+2️⃣ Should we **prioritize CRM sync first** so agents can use this immediately?  
+3️⃣ Do you need a **development sprint breakdown** (who builds what & when)?  
+
+🚀 **This PRD covers everything needed for an MVP that delivers real value—let’s start building!**
