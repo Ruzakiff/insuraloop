@@ -135,3 +135,17 @@ SITE_URL = 'http://localhost:8000'  # Change in production
 # Authentication redirects
 LOGIN_REDIRECT_URL = 'home'  # Redirect to home page after login
 LOGOUT_REDIRECT_URL = 'login'  # Redirect to login page after logout
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'noreply@referralboost.com'
+SERVER_EMAIL = 'server@referralboost.com'
+BASE_URL = 'http://localhost:8000'  # Change for production
+
+# For production, you would use something like:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'apikey'
+# EMAIL_HOST_PASSWORD = 'your-api-key'

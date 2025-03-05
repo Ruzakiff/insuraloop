@@ -1,0 +1,25 @@
+New Lead Notification
+
+Hello {{ agent.first_name }},
+
+You have received a new lead through ReferralBoost!
+
+LEAD INFORMATION:
+Name: {{ lead.name }}
+Email: {{ lead.email }}
+Phone: {{ lead.phone }}
+Insurance Type: {{ lead.get_insurance_type_display }}
+Date Submitted: {{ lead.created_at|date:"F j, Y, g:i a" }}
+{% if lead.notes %}Additional Information: {{ lead.notes }}{% endif %}
+
+Referral Source: 
+{% if lead.referral_link.referral_type == 'business' and lead.referral_link.partner_name %}Business Partner: {{ lead.referral_link.partner_name }}
+{% elif lead.referral_link.referral_type == 'customer' and lead.referral_link.customer_name %}Existing Customer: {{ lead.referral_link.customer_name }}
+{% else %}Direct Referral{% endif %}
+
+Please reach out to this lead as soon as possible to discuss their insurance needs.
+
+View Lead in Dashboard: {{ dashboard_url }}
+
+Thank you,
+ReferralBoost Team 
