@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('referrals/', include('referral_system.urls')),
     path('accounts/', include('accounts.urls')),
+    path('leads/', include('lead_capture.urls')),
     path('accounts/', include('django.contrib.auth.urls')),  # For default auth views
     path('', RedirectView.as_view(pattern_name='referral_system:my_referral_links'), name='home'),
 ]

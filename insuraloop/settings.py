@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Custom apps
     'referral_system',
     'accounts',
+    'lead_capture',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Add this near the bottom of the file
 SITE_URL = 'http://localhost:8000'  # Change in production
+
+# Authentication redirects
+LOGIN_REDIRECT_URL = 'home'  # Redirect to home page after login
+LOGOUT_REDIRECT_URL = 'login'  # Redirect to login page after logout

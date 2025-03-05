@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
+from decimal import Decimal
 
 # Create your models here.
 
@@ -63,3 +64,12 @@ class ReferralLink(models.Model):
         if request:
             return request.build_absolute_uri(self.get_absolute_url())
         return f"{settings.SITE_URL}{self.get_absolute_url()}"
+
+    def get_reward_amount(self):
+        """Calculate reward amount based on referral type"""
+        if self.referral_type == 'business':
+            return Decimal('50.00')  # Higher reward for business partners
+        elif self.referral_type == 'customer':
+            return Decimal('25.00')  # Smaller reward for customers
+        else:
+            return Decimal('0.00')   # No reward for direct agent referrals

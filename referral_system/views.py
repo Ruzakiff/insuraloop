@@ -16,24 +16,16 @@ def generate_unique_code(length=8):
             return code
 
 def referral_landing(request, code):
-    """Landing page for referral links"""
-    # Explicitly get the link with all fields
+    """Landing page for referral links - now redirects to lead capture form"""
+    # Get the referral link
     link = get_object_or_404(ReferralLink, code=code, is_active=True)
-    link.clicks += 1
-    link.save()
     
     # Store referral info in session for attribution
     request.session['referral_code'] = code
     request.session['referrer_id'] = str(link.user.id)
     
-    # Add debug information to help troubleshoot
-    context = {
-        'link': link,
-        'debug_partner_name': link.partner_name,  # This will help us see if partner_name exists
-    }
-    
-    # For now, just show a placeholder page
-    return render(request, 'referral_system/lead_capture_placeholder.html', context)
+    # Redirect to the lead capture form in the new app
+    return redirect('lead_capture:lead_form', code=code)
 
 @login_required
 def generate_referral_link(request):
