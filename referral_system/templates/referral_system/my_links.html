@@ -36,10 +36,12 @@
                             {% endif %}
                         </td>
                         <td>
-                            <div class="input-group">
-                                <input type="text" class="form-control" value="{{ link.generate_full_url }}" readonly>
-                                <button class="btn btn-outline-secondary copy-btn" data-clipboard-text="{{ link.generate_full_url }}">
-                                    Copy
+                            <div class="btn-group">
+                                <a href="{% url 'referral_system:view_qr_code' link.id %}" class="btn btn-sm btn-outline-primary" title="View QR Code">
+                                    <i class="bi bi-qr-code"></i> QR
+                                </a>
+                                <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-text="{{ link.generate_full_url }}" title="Copy Link">
+                                    <i class="bi bi-clipboard"></i> Copy
                                 </button>
                             </div>
                         </td>

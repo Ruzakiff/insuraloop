@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import random
 import string
 from .models import ReferralLink
+from django.urls import reverse
 
 # Create your views here.
 
@@ -68,6 +69,13 @@ def generate_referral_link(request):
         # Debug output
         print(f"Created link: {link.id} - Type: {link.referral_type}, Partner: {link.partner_name}, Customer: {link.customer_name}")
         
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'code': code,
+                'full_url': link.generate_full_url(request),
+                'qr_url': reverse('referral_system:view_qr_code', kwargs={'link_id': link.id})
+            })
         return redirect('referral_system:my_referral_links')
     
     return render(request, 'referral_system/generate_link.html')
@@ -77,3 +85,27 @@ def my_referral_links(request):
     """Display all referral links for the current user"""
     links = ReferralLink.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'referral_system/my_links.html', {'links': links})
+
+def disclaimer(request):
+    """Display the legal disclaimer page"""
+    return render(request, 'referral_system/disclaimer.html')
+
+@login_required
+def download_qr_code(request, link_id):
+    """Download a QR code for a referral link"""
+    link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
+    
+    # Generate the QR code
+    buffer = link.generate_qr_code(request)
+    
+    # Create response
+    response = HttpResponse(buffer.getvalue(), content_type="image/png")
+    response['Content-Disposition'] = f'attachment; filename="qrcode-{link.code}.png"'
+    
+    return response
+
+@login_required
+def view_qr_code(request, link_id):
+    """View a QR code for a referral link with print options"""
+    link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
+    return render(request, 'referral_system/qr_code.html', {'link': link})

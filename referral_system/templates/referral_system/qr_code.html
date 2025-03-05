@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code for Referral Link{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        .no-print {
+            display: none;
+        }
+        .print-container {
+            text-align: center;
+            margin: 0 auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    }
+    .qr-card {
+        max-width: 90mm;
+        margin: 0 auto;
+        page-break-inside: avoid;
+    }
+    .qr-container {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+    }
+    .qr-code-img {
+        width: 250px;
+        height: 250px;
+        display: block;
+        margin: 0 auto;
+    }
+    .qr-link {
+        word-break: break-all;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+    .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">QR Code for Referral Link</h3>
+                    <div class="no-print">
+                        <button class="btn btn-light btn-sm" onclick="window.print()">
+                            <i class="bi bi-printer"></i> Print QR Code
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="content-wrapper">
+                        <div class="qr-card text-center">
+                            <h4>{{ link.name }}</h4>
+                            {% if link.partner_name %}
+                                <p>For: {{ link.partner_name }}</p>
+                            {% endif %}
+                            
+                            <div class="qr-container">
+                                <img src="{% url 'referral_system:download_qr_code' link.id %}" alt="QR Code" class="qr-code-img img-fluid">
+                            </div>
+                            
+                            <p class="qr-link">{{ link.generate_full_url }}</p>
+                            
+                            <div class="mb-3">
+                                <p>Scan to get a free insurance quote</p>
+                                {% if link.referral_type == 'business' and link.partner_name %}
+                                    <p>Referred by: {{ link.partner_name }}</p>
+                                {% elif link.referral_type == 'customer' and link.customer_name %}
+                                    <p>Referred by: {{ link.customer_name }}</p>
+                                {% else %}
+                                    <p>Referred by: {{ link.user.get_full_name|default:link.user.username }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="small">
+                                <p class="text-muted">ReferralBoost - Simple Insurance Referrals</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="no-print mt-4 text-center">
+                <a href="{% url 'referral_system:download_qr_code' link.id %}" class="btn btn-primary">
+                    <i class="bi bi-download"></i> Download QR Code
+                </a>
+                <a href="{% url 'referral_system:my_referral_links' %}" class="btn btn-secondary ms-2">
+                    Back to My Links
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -74,6 +74,12 @@
                             <button type="submit" class="btn btn-primary btn-lg">Get My Quote</button>
                         </div>
                     </form>
+
+                    <!-- Add this near the bottom of the form -->
+                    <div class="form-text mt-3">
+                        By submitting this form, you acknowledge that you have read and agree to our 
+                        <a href="{% url 'referral_system:disclaimer' %}" target="_blank">Legal Disclaimer</a>.
+                    </div>
                 </div>
             </div>
         </div>

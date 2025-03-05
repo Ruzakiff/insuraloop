@@ -3,6 +3,10 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from decimal import Decimal
+import qrcode
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
 
 # Create your models here.
 
@@ -73,3 +77,30 @@ class ReferralLink(models.Model):
             return Decimal('25.00')  # Smaller reward for customers
         else:
             return Decimal('0.00')   # No reward for direct agent referrals
+
+    def generate_qr_code(self, request=None):
+        """Generate a QR code for this referral link"""
+        # Get the full URL for the referral link
+        url = self.generate_full_url(request)
+        
+        # Create QR code instance
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        
+        # Add data
+        qr.add_data(url)
+        qr.make(fit=True)
+        
+        # Create an image from the QR Code instance
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Create a BytesIO buffer to hold the image
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)  # Go to the start of the buffer
+        
+        return buffer

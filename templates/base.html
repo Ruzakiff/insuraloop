@@ -46,9 +46,16 @@
     </main>
 
     <!-- Footer -->
-    <footer class="mt-5 py-3 bg-light text-center">
+    <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
-            <p class="mb-0">© {% now "Y" %} Insuraloop. All rights reserved.</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-muted">© 2025 ReferralBoost. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'referral_system:disclaimer' %}" class="text-muted">Legal Disclaimer</a>
+                </div>
+            </div>
         </div>
     </footer>
 
