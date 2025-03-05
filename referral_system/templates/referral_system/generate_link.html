@@ -50,6 +50,23 @@
                 </div>
                 
                 <div class="mb-3">
+                    <label for="id_referral_type" class="form-label">Referral Type</label>
+                    <select id="id_referral_type" name="referral_type" class="form-select">
+                        <option value="business">Business Partner</option>
+                        <option value="customer">Existing Customer</option>
+                        <option value="agent">Direct from Agent</option>
+                    </select>
+                </div>
+                
+                <div class="customer-fields mb-3" style="display: none;">
+                    <label for="id_customer_name" class="form-label">Customer Name</label>
+                    <input type="text" id="id_customer_name" name="customer_name" class="form-control">
+                    
+                    <label for="id_customer_email" class="form-label mt-2">Customer Email</label>
+                    <input type="email" id="id_customer_email" name="customer_email" class="form-control">
+                </div>
+                
+                <div class="mb-3">
                     <label for="id_notes" class="form-label">Notes (Optional)</label>
                     <textarea id="id_notes" name="notes" class="form-control" rows="3"></textarea>
                 </div>
@@ -63,4 +80,24 @@
         <a href="{% url 'referral_system:my_referral_links' %}">Back to My Referral Links</a>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('id_referral_type').addEventListener('change', function() {
+        var customerFields = document.querySelector('.customer-fields');
+        var partnerFields = document.querySelector('.partner-fields');
+        
+        if (this.value === 'customer') {
+            customerFields.style.display = 'block';
+            partnerFields.style.display = 'none';
+        } else if (this.value === 'business') {
+            customerFields.style.display = 'none';
+            partnerFields.style.display = 'block';
+        } else {
+            customerFields.style.display = 'none';
+            partnerFields.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %} 

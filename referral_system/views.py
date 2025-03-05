@@ -43,34 +43,39 @@ def generate_referral_link(request):
         
         # Extract form data
         name = request.POST.get('name', 'My Referral Link')
-        partner_name = request.POST.get('partner_name', None)
+        referral_type = request.POST.get('referral_type', 'agent')
         insurance_type = request.POST.get('insurance_type', 'auto')
         source = request.POST.get('source', 'website')
         notes = request.POST.get('notes', None)
         
-        # Debug output to console
-        print(f"Creating link with: name={name}, partner={partner_name}, type={insurance_type}, source={source}")
+        # Get type-specific data
+        partner_name = None
+        customer_name = None
+        customer_email = None
+        
+        if referral_type == 'business':
+            partner_name = request.POST.get('partner_name')
+        elif referral_type == 'customer':
+            customer_name = request.POST.get('customer_name')
+            customer_email = request.POST.get('customer_email')
         
         # Create the link
         link = ReferralLink.objects.create(
             user=request.user,
             code=code,
             name=name,
+            referral_type=referral_type,
             partner_name=partner_name,
+            customer_name=customer_name,
+            customer_email=customer_email,
             insurance_type=insurance_type,
             source=source,
             notes=notes
         )
         
-        # Print the created link details
-        print(f"Created link: {link.id} - Partner name: '{link.partner_name}', Source: {link.source}")
+        # Debug output
+        print(f"Created link: {link.id} - Type: {link.referral_type}, Partner: {link.partner_name}, Customer: {link.customer_name}")
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': True,
-                'code': code,
-                'full_url': link.generate_full_url(request)
-            })
         return redirect('referral_system:my_referral_links')
     
     return render(request, 'referral_system/generate_link.html')

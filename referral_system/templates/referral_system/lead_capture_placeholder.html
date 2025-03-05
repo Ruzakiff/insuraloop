@@ -18,8 +18,10 @@
                     </p>
 
                     
-                    {% if link.partner_name %}
+                    {% if link.referral_type == 'business' and link.partner_name %}
                         <p class="text-muted">You were referred by: {{ link.partner_name }}</p>
+                    {% elif link.referral_type == 'customer' and link.customer_name %}
+                        <p class="text-muted">Your friend {{ link.customer_name }} thought you might be interested in our insurance services</p>
                     {% else %}
                         <p class="text-muted">You were referred by: {{ link.user.get_full_name|default:link.user.username }}</p>
                     {% endif %}

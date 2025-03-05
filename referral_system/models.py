@@ -34,6 +34,25 @@ class ReferralLink(models.Model):
     ], default='website')
     notes = models.TextField(blank=True, null=True)
     
+    # Add a referral type field
+    REFERRAL_TYPE_CHOICES = [
+        ('business', 'Business Partner'),
+        ('customer', 'Existing Customer'),
+        ('agent', 'Direct from Agent'),
+    ]
+    referral_type = models.CharField(
+        max_length=20, 
+        choices=REFERRAL_TYPE_CHOICES,
+        default='agent',
+        help_text="Who is sharing this referral link"
+    )
+    
+    # If it's a customer referral, we can store customer info
+    customer_name = models.CharField(max_length=100, blank=True, null=True, 
+                                     help_text="Name of existing customer making the referral")
+    customer_email = models.EmailField(blank=True, null=True,
+                                      help_text="Email of existing customer making the referral")
+    
     def __str__(self):
         return f"Referral link for {self.user.username} ({self.code})"
     
