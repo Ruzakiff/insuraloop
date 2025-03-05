@@ -16,7 +16,14 @@
                         This is a placeholder for the lead capture form. In the full implementation, 
                         you would enter your contact information here to request an insurance quote.
                     </p>
-                    <p class="text-muted">You were referred by: {{ link.user.username }}</p>
+
+                    
+                    {% if link.partner_name %}
+                        <p class="text-muted">You were referred by: {{ link.partner_name }}</p>
+                    {% else %}
+                        <p class="text-muted">You were referred by: {{ link.user.get_full_name|default:link.user.username }}</p>
+                    {% endif %}
+                    
                     <a href="/" class="btn btn-primary">Return to Home</a>
                 </div>
             </div>

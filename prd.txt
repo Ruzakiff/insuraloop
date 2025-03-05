@@ -1,30 +1,39 @@
-# **Product Requirements Document (PRD) for MVP: Insurance Referral System**
+# **📌 Product Requirements Document (PRD) – ReferralBoost MVP**  
+🚀 **Version 1.0 | March 2025**  
 
 ## **1. Overview**
-### **1.1 Product Name:**  
-**Insuraloop** (Placeholder name)
+### **1.1 Product Name**  
+**ReferralBoost** (Placeholder Name)  
 
 ### **1.2 Purpose & Goals**  
-Insuraloop is a **Django-based referral system** that helps insurance agents acquire high-quality leads at a lower cost by **automating referral tracking, lead distribution, and payouts**.  
+ReferralBoost is a **Django-based referral system** that allows **insurance agents to acquire high-quality leads at a lower cost by leveraging referrals from customers, car dealerships, mortgage brokers, and other business partners.**  
 
-The MVP will:  
-✅ Enable agents to **generate leads via referrals** (customers, dealerships, mortgage brokers).  
-✅ Provide **trackable referral links** for each agent and partner.  
-✅ Automatically **route leads to the correct agent**.  
-✅ **Sync leads to agent’s CRM** via email/Zapier API.  
-✅ Automate **referral rewards (cash, gift cards, or discounts)**.  
+The **MVP focuses on:**  
+✅ **Lead Capture via Referral Links & QR Codes** – Agents & partners share links with prospects.  
+✅ **Automated Lead Routing** – Leads are assigned to the correct agent and sent to their CRM.  
+✅ **Referral Reward Automation** – Business partners and referrers get paid when leads complete a quote.  
+✅ **CRM-Friendly Design** – No forced CRM replacement, just a plug-and-play lead booster.  
+✅ **No Business Partner Logins** – Simplified referral tracking without extra accounts or dashboards.  
 
 ### **1.3 Why This MVP?**  
-✔ Builds **the core infrastructure** (lead intake, tracking, CRM integration).  
-✔ Generates **immediate revenue** for agents.  
-✔ Lays the groundwork for **future features** (automated renewals, lead marketplace).  
+✔ **Builds the core infrastructure** (lead intake, tracking, payouts, CRM integration).  
+✔ **Generates immediate revenue** for agents and referrers.  
+✔ **Lays the groundwork for future features** (automated renewals, lead marketplace).  
 
 ---
 
 ## **2. System Architecture**
 ### **2.1 Django Apps in Project**
-✅ **`referralsystem` (Core Referral Functionality)**  
-✅ **`accounts` (User Authentication & Agent Management)**  
+✅ `referralsystem` (Core Referral Functionality)  
+✅ `accounts` (User Authentication & Agent Management)  
+
+### **2.2 Data Pipeline**
+1️⃣ **Referral source (customer, dealership, etc.) shares a unique referral link or QR code.**  
+2️⃣ **Lead enters basic info on a simple form (name, phone, email, insurance type).**  
+3️⃣ **Lead is assigned to an agent and synced to their CRM (via Zapier API or direct webhook).**  
+4️⃣ **Agent follows up with the lead and completes the insurance quote process.**  
+5️⃣ **Referral system tracks the lead status and automates reward payments.**  
+6️⃣ **Referrer gets paid (via Stripe, PayPal, or direct deposit).**  
 
 ---
 
@@ -32,12 +41,12 @@ The MVP will:
 ### **3.1 Referral System (`referralsystem` app)**
 | **Feature** | **Description** | **Priority** |
 |------------|---------------|-------------|
-| **Referral Link Generator** | Each agent/partner gets a **unique referral link** (e.g., `agentinsurance.com/ref123`). | ✅ High |
-| **Lead Capture Form** | A hosted form where referred leads enter **name, phone, email, insurance type**. | ✅ High |
-| **QR Code Generation** | QR codes for offline referrals (dealerships, brokers). | ✅ Medium |
+| **Referral Link Generator** | Each agent & business partner gets a **unique, trackable referral link** (e.g., `insuranceapp.com/ref123`). | ✅ High |
+| **QR Code Generator** | Each referral link generates a **QR code** for offline referrals (dealerships, brokers). | ✅ Medium |
+| **Lead Capture Form** | A **simple form** where referred leads enter **name, phone, email, and insurance type**. | ✅ High |
 | **Lead Assignment & CRM Sync** | New leads are **automatically assigned** to agents and sent via email/Zapier API. | ✅ High |
-| **Referral Reward Processing** | Automated payout system (cash, gift cards, or discounts). | ✅ High |
-| **Dashboard for Agents** | View incoming leads, track referral performance, pending payouts. | ✅ Medium |
+| **Automated Referral Rewards** | System tracks referrals and **automatically issues rewards** when a lead completes a quote. | ✅ High |
+| **Fraud Prevention** | Checks for **duplicate leads & fake referrals** to prevent abuse. | ✅ Medium |
 
 ---
 
@@ -45,7 +54,7 @@ The MVP will:
 | **Feature** | **Description** | **Priority** |
 |------------|---------------|-------------|
 | **User Registration/Login** | Agents can **sign up, log in, and manage accounts**. | ✅ High |
-| **Business Partner Accounts** | Dealerships/mortgage brokers get **separate referral accounts**. | ✅ Medium |
+| **Business Partner Management (No Login Needed)** | Business partners (car salesmen, mortgage brokers) are given **a unique referral link & QR code**, but don’t require an account. | ✅ High |
 | **Admin Dashboard** | Superusers can **manage referrals, agents, and payouts**. | ✅ High |
 
 ---
@@ -105,7 +114,7 @@ The MVP will:
 ✅ Add **QR Code Generator** for offline referrals.  
 ✅ Implement **Admin Dashboard** for analytics.  
 ✅ Expand **Payment Options** (PayPal, ACH, Stripe).  
-✅ Launch **Business Partner Referral Portal** (for dealerships).  
+✅ Launch **Business Partner Referral Portal** (if needed).  
 
 ---
 
@@ -114,4 +123,4 @@ The MVP will:
 2️⃣ Should we **prioritize CRM sync first** so agents can use this immediately?  
 3️⃣ Do you need a **development sprint breakdown** (who builds what & when)?  
 
-🚀 **This PRD covers everything needed for an MVP that delivers real value—let’s start building!**
+🚀 **This PRD keeps the system lightweight, high-impact, and easy for salesmen, agents, and business partners to use—let’s build what actually gets adopted!**

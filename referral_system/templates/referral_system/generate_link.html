@@ -8,11 +8,53 @@
     
     <div class="card">
         <div class="card-body">
-            <p>Create a new unique referral link that you can share with potential leads.</p>
+            <p>Create a new unique referral link that you can share with potential leads or business partners.</p>
             
             <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Generate New Link</button>
+                
+                <div class="mb-3">
+                    <label for="id_name" class="form-label">Link Name</label>
+                    <input type="text" id="id_name" name="name" class="form-control" placeholder="E.g., Summer Campaign, Facebook Link" required>
+                    <div class="form-text">A name to help you identify this link</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_partner_name" class="form-label">Partner Name (Optional)</label>
+                    <input type="text" id="id_partner_name" name="partner_name" class="form-control" placeholder="E.g., Johnson's Auto Dealership">
+                    <div class="form-text">If this link is for a business partner, enter their name</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_insurance_type" class="form-label">Insurance Type</label>
+                    <select id="id_insurance_type" name="insurance_type" class="form-select">
+                        <option value="auto">Auto Insurance</option>
+                        <option value="home">Home Insurance</option>
+                        <option value="life">Life Insurance</option>
+                        <option value="health">Health Insurance</option>
+                        <option value="business">Business Insurance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_source" class="form-label">Referral Source</label>
+                    <select id="id_source" name="source" class="form-select">
+                        <option value="website">Your Website</option>
+                        <option value="email">Email Campaign</option>
+                        <option value="social">Social Media</option>
+                        <option value="partner">Business Partner</option>
+                        <option value="print">Print Materials</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_notes" class="form-label">Notes (Optional)</label>
+                    <textarea id="id_notes" name="notes" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Generate Link</button>
             </form>
         </div>
     </div>

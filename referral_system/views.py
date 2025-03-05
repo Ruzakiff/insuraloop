@@ -17,6 +17,7 @@ def generate_unique_code(length=8):
 
 def referral_landing(request, code):
     """Landing page for referral links"""
+    # Explicitly get the link with all fields
     link = get_object_or_404(ReferralLink, code=code, is_active=True)
     link.clicks += 1
     link.save()
@@ -25,18 +26,44 @@ def referral_landing(request, code):
     request.session['referral_code'] = code
     request.session['referrer_id'] = str(link.user.id)
     
+    # Add debug information to help troubleshoot
+    context = {
+        'link': link,
+        'debug_partner_name': link.partner_name,  # This will help us see if partner_name exists
+    }
+    
     # For now, just show a placeholder page
-    return render(request, 'referral_system/lead_capture_placeholder.html', {'link': link})
+    return render(request, 'referral_system/lead_capture_placeholder.html', context)
 
 @login_required
 def generate_referral_link(request):
     """Generate a new referral link for the current user"""
     if request.method == 'POST':
         code = generate_unique_code()
+        
+        # Extract form data
+        name = request.POST.get('name', 'My Referral Link')
+        partner_name = request.POST.get('partner_name', None)
+        insurance_type = request.POST.get('insurance_type', 'auto')
+        source = request.POST.get('source', 'website')
+        notes = request.POST.get('notes', None)
+        
+        # Debug output to console
+        print(f"Creating link with: name={name}, partner={partner_name}, type={insurance_type}, source={source}")
+        
+        # Create the link
         link = ReferralLink.objects.create(
             user=request.user,
-            code=code
+            code=code,
+            name=name,
+            partner_name=partner_name,
+            insurance_type=insurance_type,
+            source=source,
+            notes=notes
         )
+        
+        # Print the created link details
+        print(f"Created link: {link.id} - Partner name: '{link.partner_name}', Source: {link.source}")
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({

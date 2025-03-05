@@ -13,6 +13,27 @@ class ReferralLink(models.Model):
     is_active = models.BooleanField(default=True)
     clicks = models.IntegerField(default=0)
     
+    # New fields with defaults
+    name = models.CharField(max_length=100, help_text="Name this link for your reference", default="My Referral Link")
+    partner_name = models.CharField(max_length=100, blank=True, null=True, help_text="Business partner using this link")
+    insurance_type = models.CharField(max_length=50, choices=[
+        ('auto', 'Auto Insurance'),
+        ('home', 'Home Insurance'),
+        ('life', 'Life Insurance'),
+        ('health', 'Health Insurance'),
+        ('business', 'Business Insurance'),
+        ('other', 'Other')
+    ], default='auto')
+    source = models.CharField(max_length=50, choices=[
+        ('website', 'Your Website'),
+        ('email', 'Email Campaign'),
+        ('social', 'Social Media'),
+        ('partner', 'Business Partner'),
+        ('print', 'Print Materials'),
+        ('other', 'Other')
+    ], default='website')
+    notes = models.TextField(blank=True, null=True)
+    
     def __str__(self):
         return f"Referral link for {self.user.username} ({self.code})"
     
