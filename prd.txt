@@ -2,10 +2,10 @@
 
 ## **1. Overview**
 ### **1.1 Product Name:**  
-**ReferralBoost** (Placeholder name)
+**Insuraloop** (Placeholder name)
 
 ### **1.2 Purpose & Goals**  
-ReferralBoost is a **Django-based referral system** that helps insurance agents acquire high-quality leads at a lower cost by **automating referral tracking, lead distribution, and payouts**.  
+Insuraloop is a **Django-based referral system** that helps insurance agents acquire high-quality leads at a lower cost by **automating referral tracking, lead distribution, and payouts**.  
 
 The MVP will:  
 ✅ Enable agents to **generate leads via referrals** (customers, dealerships, mortgage brokers).  

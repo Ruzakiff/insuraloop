@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>My Referral Links</h1>
+    
+    <div class="mb-4">
+        <a href="{% url 'referral_system:generate_referral_link' %}" class="btn btn-primary">
+            Generate New Referral Link
+        </a>
+    </div>
+    
+    {% if links %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Created</th>
+                        <th>Clicks</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td>{{ link.code }}</td>
+                        <td>{{ link.created_at|date:"M d, Y" }}</td>
+                        <td>{{ link.clicks }}</td>
+                        <td>
+                            {% if link.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="{{ link.generate_full_url }}" readonly>
+                                <button class="btn btn-outline-secondary copy-btn" data-clipboard-text="{{ link.generate_full_url }}">
+                                    Copy
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You don't have any referral links yet. Generate your first one!
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script>
+    new ClipboardJS('.copy-btn');
+    
+    // Show tooltip when copied
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const originalText = this.textContent;
+            this.textContent = 'Copied!';
+            setTimeout(() => {
+                this.textContent = originalText;
+            }, 1500);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

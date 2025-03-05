@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Referral Link - Insuraloop{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Generate Referral Link</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <p>Create a new unique referral link that you can share with potential leads.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Generate New Link</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'referral_system:my_referral_links' %}">Back to My Referral Links</a>
+    </div>
+</div>
+{% endblock %} 

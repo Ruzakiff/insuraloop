@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Lead Capture Form{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Insurance Quote Request</h3>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Thank you for your interest!</h5>
+                    <p class="card-text">
+                        This is a placeholder for the lead capture form. In the full implementation, 
+                        you would enter your contact information here to request an insurance quote.
+                    </p>
+                    <p class="text-muted">You were referred by: {{ link.user.username }}</p>
+                    <a href="/" class="btn btn-primary">Return to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
