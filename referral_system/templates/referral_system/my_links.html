@@ -3,39 +3,52 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>My Referral Links</h1>
-    
-    <div class="mb-4">
-        <a href="{% url 'referral_system:generate_referral_link' %}" class="btn btn-primary">
-            Generate New Referral Link
-        </a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Referral Links</h1>
+        <div>
+            <a href="{% url 'referral_system:payment_preferences' %}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-cash"></i> Payment Settings
+            </a>
+            <a href="{% url 'referral_system:generate_referral_link' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Generate New Link
+            </a>
+        </div>
     </div>
     
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-white bg-primary mb-3">
                 <div class="card-header">Total Clicks</div>
                 <div class="card-body">
                     <h2 class="card-title">{{ links.total_clicks }}</h2>
-                    <p class="card-text">People who visited your referral links</p>
+                    <p class="card-text">People who visited your links</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-white bg-success mb-3">
                 <div class="card-header">Total Submissions</div>
                 <div class="card-body">
                     <h2 class="card-title">{{ links.total_conversions }}</h2>
-                    <p class="card-text">People who completed your lead forms</p>
+                    <p class="card-text">Form submissions received</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card text-white bg-info mb-3">
                 <div class="card-header">Conversion Rate</div>
                 <div class="card-body">
                     <h2 class="card-title">{{ links.conversion_rate|floatformat:1 }}%</h2>
-                    <p class="card-text">Percentage of visitors who submitted forms</p>
+                    <p class="card-text">Visitors who submitted forms</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Total Earnings</div>
+                <div class="card-body">
+                    <h2 class="card-title">${{ links.total_earnings|floatformat:2 }}</h2>
+                    <p class="card-text">Your referral earnings</p>
                 </div>
             </div>
         </div>
@@ -47,28 +60,26 @@
                 <thead>
                     <tr>
                         <th>Code</th>
+                        <th>Name</th>
+                        <th>State</th>
                         <th>Created</th>
                         <th>Clicks</th>
                         <th>Submissions</th>
-                        <th>Conversion Rate</th>
+                        <th>Earnings</th>
                         <th>Status</th>
-                        <th>Link</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for link in links %}
                     <tr>
                         <td>{{ link.code }}</td>
+                        <td>{{ link.name }}</td>
+                        <td>{{ link.get_target_state_display|default:"Nationwide" }}</td>
                         <td>{{ link.created_at|date:"M d, Y" }}</td>
                         <td>{{ link.clicks }}</td>
                         <td>{{ link.conversions }}</td>
-                        <td>
-                            {% if link.clicks > 0 %}
-                                {{ link.conversion_rate|floatformat:1 }}%
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
+                        <td>${{ link.earnings|floatformat:2 }}</td>
                         <td>
                             {% if link.is_active %}
                                 <span class="badge bg-success">Active</span>

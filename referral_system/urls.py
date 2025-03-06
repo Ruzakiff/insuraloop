@@ -27,4 +27,5 @@ urlpatterns = [
     path('leads/<uuid:link_id>/', views.view_leads, name='view_leads'),
     path('lead-details/<int:lead_id>/', views.view_lead_details, name='view_lead_details'),
     path('download-qr-code/<uuid:link_id>/', views.download_qr_code, name='download_qr_code'),
+    path('payment-preferences/', views.payment_preferences, name='payment_preferences'),
 ]

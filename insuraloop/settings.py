@@ -122,7 +122,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Add these lines to configure static files correctly
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -133,8 +144,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SITE_URL = 'http://localhost:8000'  # Change in production
 
 # Authentication redirects
-LOGIN_REDIRECT_URL = 'home'  # Redirect to home page after login
-LOGOUT_REDIRECT_URL = 'login'  # Redirect to login page after logout
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = 'referral_system:my_links'  # Change from 'home' to a URL that exists
+LOGOUT_REDIRECT_URL = 'login'
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
@@ -149,3 +161,18 @@ BASE_URL = 'http://localhost:8000'  # Change for production
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'apikey'
 # EMAIL_HOST_PASSWORD = 'your-api-key'
+
+# Session and cookie settings
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+
+# Ensure the CSRF cookie is properly named
+CSRF_COOKIE_NAME = 'csrftoken'  
+
+# Set SameSite policy for cookies
+SESSION_COOKIE_SAMESITE = 'Lax'  # 'Lax' is a good default for most sites
+CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' is a good default for most sites
+
+# HTTP only settings - better security but can limit JavaScript access
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # False allows JavaScript to access the CSRF token

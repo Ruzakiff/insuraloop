@@ -5,6 +5,8 @@ from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django import forms
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -53,3 +55,41 @@ def profile(request):
         form = UserProfileForm(instance=request.user)
     
     return render(request, 'accounts/profile.html', {'form': form})
+
+@ensure_csrf_cookie  # Ensure the CSRF cookie is set
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            # Redirect to a success page.
+            return redirect('referral_system:my_links')
+        else:
+            # Return an 'invalid login' error message.
+            return render(request, 'accounts/login.html', {'form_errors': True})
+    
+    return render(request, 'accounts/login.html')
+
+@ensure_csrf_cookie
+def debug_csrf(request):
+    token = request.META.get('CSRF_COOKIE', None)
+    cookie = request.COOKIES.get('csrftoken', None)
+    
+    return HttpResponse(
+        f"CSRF Debug:<br>"
+        f"Cookie set: {'Yes' if cookie else 'No'}<br>"
+        f"Token in META: {'Yes' if token else 'No'}<br>"
+        f"Headers: {request.headers.get('Cookie', 'None')}"
+    )
+
+def test_form(request):
+    """A simple test form to isolate CSRF issues"""
+    context = {}
+    
+    if request.method == 'POST':
+        context['success'] = True
+    
+    return render(request, 'accounts/test_form.html', context)

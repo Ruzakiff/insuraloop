@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 import random
 import string
-from .models import ReferralLink
+from .models import ReferralLink, AgentPaymentPreference, AgentRateOverride
 from lead_capture.models import Lead
 from django.urls import reverse
 import qrcode
 import io
 import base64
+from django.contrib import messages
 
 # Create your views here.
 
@@ -85,10 +86,30 @@ def generate_referral_link(request):
     return render(request, 'referral_system/generate_link.html')
 
 @login_required
-def my_referral_links(request):
-    """Display all referral links for the current user"""
+def my_links(request):
+    """View all referral links for the logged-in user"""
     links = ReferralLink.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Calculate totals
+    total_clicks = sum(link.clicks for link in links)
+    total_conversions = sum(link.conversions for link in links)
+    total_earnings = sum(link.earnings for link in links)
+    
+    # Calculate conversion rate
+    conversion_rate = 0
+    if total_clicks > 0:
+        conversion_rate = (total_conversions / total_clicks) * 100
+    
+    # Add totals to links
+    links.total_clicks = total_clicks
+    links.total_conversions = total_conversions
+    links.conversion_rate = conversion_rate
+    links.total_earnings = total_earnings
+    
     return render(request, 'referral_system/my_links.html', {'links': links})
+
+# Add an alias for backward compatibility
+my_referral_links = my_links  # This ensures old references to my_referral_links still work
 
 def disclaimer(request):
     """Display the legal disclaimer page"""
@@ -153,33 +174,6 @@ def view_qr_code(request, link_id):
         'qr_image': qr_image
     })
 
-def my_links(request):
-    """View all referral links for the logged-in user"""
-    links = ReferralLink.objects.filter(user=request.user).order_by('-created_at')
-    
-    # Calculate totals
-    total_clicks = sum(link.clicks for link in links)
-    total_conversions = sum(link.conversions for link in links)
-    
-    # Calculate conversion rate
-    conversion_rate = 0
-    if total_clicks > 0:
-        conversion_rate = (total_conversions / total_clicks) * 100
-    
-    # Calculate conversion rate for each link
-    for link in links:
-        if link.clicks > 0:
-            link.conversion_rate = (link.conversions / link.clicks) * 100
-        else:
-            link.conversion_rate = 0
-    
-    # Add totals to links
-    links.total_clicks = total_clicks
-    links.total_conversions = total_conversions
-    links.conversion_rate = conversion_rate
-    
-    return render(request, 'referral_system/my_links.html', {'links': links})
-
 def view_leads(request, link_id):
     """View leads for a specific referral link"""
     link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
@@ -193,3 +187,141 @@ def view_lead_details(request, lead_id):
     lead = get_object_or_404(Lead, id=lead_id, referral_link__user=request.user)
     
     return render(request, 'referral_system/lead_details.html', {'lead': lead})
+
+@login_required
+def payment_preferences(request):
+    """View and update payment preferences"""
+    # Get or create the user's payment preferences
+    preferences, created = AgentPaymentPreference.objects.get_or_create(user=request.user)
+    
+    # Get all active rate overrides
+    overrides = AgentRateOverride.objects.filter(preference=preferences, is_active=True)
+    
+    # Group overrides by type for easier display
+    state_overrides = {}
+    insurance_overrides = {}
+    specific_overrides = {}
+    
+    for override in overrides:
+        if override.state and not override.insurance_type:
+            # State-specific override for all insurance types
+            state_overrides[override.state] = override
+        elif override.insurance_type and not override.state:
+            # Insurance-specific override for all states
+            insurance_overrides[override.insurance_type] = override
+        elif override.state and override.insurance_type:
+            # Specific state+insurance combination
+            key = f"{override.state}_{override.insurance_type}"
+            specific_overrides[key] = override
+    
+    if request.method == 'POST':
+        if 'save_preferences' in request.POST:
+            # Update general preferences
+            preferences.default_rate = request.POST.get('default_rate', 25.00)
+            preferences.preferred_payment_method = request.POST.get('payment_method', 'direct_deposit')
+            preferences.payment_email = request.POST.get('payment_email', '')
+            preferences.account_number = request.POST.get('account_number', '')
+            preferences.routing_number = request.POST.get('routing_number', '')
+            preferences.payment_schedule = request.POST.get('payment_schedule', 'monthly')
+            preferences.payment_threshold = request.POST.get('payment_threshold', 50.00)
+            preferences.save()
+            
+            messages.success(request, "Payment preferences updated successfully!")
+            
+        elif 'add_override' in request.POST:
+            # Add a new rate override
+            state = request.POST.get('override_state', '')
+            insurance_type = request.POST.get('override_insurance_type', '')
+            rate = request.POST.get('override_rate', 0)
+            
+            # Validate inputs
+            if not rate or float(rate) <= 0:
+                messages.error(request, "Please enter a valid rate amount.")
+            else:
+                # Check if an override already exists
+                try:
+                    override = AgentRateOverride.objects.get(
+                        preference=preferences,
+                        state=state if state else None,
+                        insurance_type=insurance_type if insurance_type else ''
+                    )
+                    # Update existing override
+                    override.rate = rate
+                    override.is_active = True
+                    override.save()
+                    messages.success(request, "Rate override updated successfully!")
+                except AgentRateOverride.DoesNotExist:
+                    # Create new override
+                    AgentRateOverride.objects.create(
+                        preference=preferences,
+                        state=state if state else None,
+                        insurance_type=insurance_type if insurance_type else '',
+                        rate=rate
+                    )
+                    messages.success(request, "Rate override added successfully!")
+                
+                return redirect('referral_system:payment_preferences')
+                
+        elif 'delete_override' in request.POST:
+            override_id = request.POST.get('override_id')
+            if override_id:
+                try:
+                    override = AgentRateOverride.objects.get(id=override_id, preference=preferences)
+                    override.delete()
+                    messages.success(request, "Rate override deleted successfully!")
+                except AgentRateOverride.DoesNotExist:
+                    messages.error(request, "Rate override not found.")
+                
+                return redirect('referral_system:payment_preferences')
+                
+        elif 'bulk_state_update' in request.POST:
+            # Update rates for multiple states at once
+            states = request.POST.getlist('bulk_states')
+            insurance_type = request.POST.get('bulk_insurance_type', '')
+            rate = request.POST.get('bulk_rate', 0)
+            
+            if not states:
+                messages.error(request, "Please select at least one state.")
+            elif not rate or float(rate) <= 0:
+                messages.error(request, "Please enter a valid rate amount.")
+            else:
+                for state in states:
+                    try:
+                        override = AgentRateOverride.objects.get(
+                            preference=preferences,
+                            state=state,
+                            insurance_type=insurance_type if insurance_type else ''
+                        )
+                        # Update existing override
+                        override.rate = rate
+                        override.is_active = True
+                        override.save()
+                    except AgentRateOverride.DoesNotExist:
+                        # Create new override
+                        AgentRateOverride.objects.create(
+                            preference=preferences,
+                            state=state,
+                            insurance_type=insurance_type if insurance_type else '',
+                            rate=rate
+                        )
+                
+                messages.success(request, f"Updated rates for {len(states)} states!")
+                return redirect('referral_system:payment_preferences')
+    
+    # Group states by region for easier selection
+    regions = {
+        'Northeast': ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'],
+        'Midwest': ['OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'ND', 'SD', 'NE', 'KS'],
+        'South': ['DE', 'MD', 'DC', 'VA', 'WV', 'NC', 'SC', 'GA', 'FL', 'KY', 'TN', 'AL', 'MS', 'AR', 'LA', 'OK', 'TX'],
+        'West': ['MT', 'ID', 'WY', 'CO', 'NM', 'AZ', 'UT', 'NV', 'WA', 'OR', 'CA', 'AK', 'HI']
+    }
+    
+    return render(request, 'referral_system/payment_preferences.html', {
+        'preferences': preferences,
+        'state_overrides': state_overrides,
+        'insurance_overrides': insurance_overrides,
+        'specific_overrides': specific_overrides,
+        'regions': regions,
+        'states': dict(ReferralLink.STATE_CHOICES),
+        'insurance_types': dict(AgentRateOverride.INSURANCE_TYPE_CHOICES),
+    })

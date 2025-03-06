@@ -10,6 +10,10 @@ class Lead(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     
+    # Add state field
+    state = models.CharField(max_length=2, blank=True, null=True)
+    zip_code = models.CharField(max_length=10, blank=True, null=True)
+    
     # Insurance details
     INSURANCE_TYPE_CHOICES = [
         ('auto', 'Auto Insurance'),
@@ -22,7 +26,6 @@ class Lead(models.Model):
     insurance_type = models.CharField(max_length=20, choices=INSURANCE_TYPE_CHOICES)
     
     # Extended fields for Auto Insurance
-    zip_code = models.CharField(max_length=10, blank=True, null=True)
     vehicle_vin = models.CharField(max_length=17, blank=True, null=True, verbose_name="VIN")
     vehicle_year = models.IntegerField(blank=True, null=True)
     vehicle_make = models.CharField(max_length=50, blank=True, null=True)

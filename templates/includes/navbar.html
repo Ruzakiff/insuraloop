@@ -1,0 +1,6 @@
+<li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name == 'payment_preferences' %}active{% endif %}" 
+       href="{% url 'referral_system:payment_preferences' %}">
+        <i class="bi bi-cash"></i> Payment Settings
+    </a>
+</li> 

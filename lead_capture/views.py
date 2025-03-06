@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from referral_system.models import ReferralLink
+from referral_system.models import ReferralLink, PaymentRate
 from .forms import LeadCaptureForm
 from .models import Lead
 from django.http import HttpResponse
@@ -19,20 +19,20 @@ def lead_capture(request, code):
     if request.method == 'GET':
         link.increment_clicks()
     
+    # For POST requests, process the form submission
     if request.method == 'POST':
         # Create the lead from form data
         lead = Lead(
             referral_link=link,
-            agent=link.user,  # Assign the agent who created the link
-            
-            # Basic information
+            agent=link.user,
             name=request.POST.get('name', ''),
             email=request.POST.get('email', ''),
             phone=request.POST.get('phone', ''),
-            insurance_type=request.POST.get('insurance_type', ''),
-            
-            # Additional information based on insurance type
+            insurance_type=request.POST.get('insurance_type', 'auto'),
             zip_code=request.POST.get('zip_code', ''),
+            state=request.POST.get('state', ''),
+            
+            # Basic information
             address=request.POST.get('address', ''),
             notes=request.POST.get('notes', ''),
             
@@ -78,6 +78,38 @@ def lead_capture(request, code):
         
         # Increment conversions
         link.increment_conversions()
+        
+        # Calculate payment based on state
+        lead_state = lead.state
+        
+        try:
+            # First try to get a rate for the specific state and insurance type
+            payment_rate = PaymentRate.objects.get(
+                state=lead_state,
+                insurance_type=lead.insurance_type,
+                is_active=True
+            )
+        except PaymentRate.DoesNotExist:
+            try:
+                # If no state-specific rate, get the nationwide rate for this insurance type
+                payment_rate = PaymentRate.objects.get(
+                    state='',  # Empty string means nationwide
+                    insurance_type=lead.insurance_type,
+                    is_active=True
+                )
+            except PaymentRate.DoesNotExist:
+                # If all else fails, use a default rate
+                from decimal import Decimal
+                payment_amount = Decimal('25.00')
+            else:
+                payment_amount = payment_rate.rate_amount
+        else:
+            payment_amount = payment_rate.rate_amount
+            
+        # Update link earnings
+        link.earnings += payment_amount
+        link.paid_conversions += 1
+        link.save(update_fields=['earnings', 'paid_conversions'])
         
         # Redirect to thank you page
         return redirect('lead_capture:thank_you', lead_id=lead.id)
