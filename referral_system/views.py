@@ -186,8 +186,10 @@ def lead_detail(request, lead_id):
     """View details of a specific lead"""
     lead = get_object_or_404(Lead, id=lead_id)
     
-    # Debug ZIP code in detail view
-    print(f"LEAD DETAIL VIEW - LEAD ID: {lead.id}, ZIP CODE: '{lead.zip_code}'")
+    # Debug ZIP code and validation details
+    print(f"LEAD DETAIL VIEW - ID: {lead.id}, ZIP: '{lead.zip_code}'")
+    print(f"VALIDATION SCORE: {lead.validation_score}")
+    print(f"VALIDATION DETAILS: {lead.validation_details}")
     
     # Check permissions - only the owner or admin can view
     if lead.agent != request.user and not request.user.is_staff:

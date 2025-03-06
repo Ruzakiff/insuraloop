@@ -30,7 +30,6 @@ def lead_capture(request, code):
         
         # Fix: Get the last non-empty ZIP code value
         zip_codes = request.POST.getlist('zip_code')
-        # Find the last non-empty value in the list
         zip_code = next((code for code in reversed(zip_codes) if code), '')
         
         print(f"ZIP CODE LIST: {zip_codes}")
@@ -109,6 +108,17 @@ def lead_capture(request, code):
         # Verify ZIP code was saved correctly by retrieving from DB
         fresh_lead = Lead.objects.get(id=lead.id)
         print(f"LEAD FROM DB AFTER SAVE - ZIP CODE: '{fresh_lead.zip_code}'")
+        
+        # Now perform validation and store results - FORCE THIS TO RUN!
+        print("RUNNING VALIDATION FOR NEW LEAD...")
+        from lead_validation.utils import validate_and_store_lead_data
+        validation_results = validate_and_store_lead_data(lead)
+        print(f"VALIDATION COMPLETE. Score: {validation_results['score']}")
+        
+        # Verify validation was saved
+        updated_lead = Lead.objects.get(id=lead.id)
+        print(f"After validation - Lead ID: {updated_lead.id}, Score: {updated_lead.validation_score}")
+        print(f"Validation details: {updated_lead.validation_details}")
         
         # Increment conversions
         link.increment_conversions()
@@ -295,6 +305,11 @@ def step4_confirmation(request, code):
             
         # Save the lead
         lead.save()
+        
+        # Verify validation was saved
+        updated_lead = Lead.objects.get(id=lead.id)
+        print(f"After validation - Lead ID: {updated_lead.id}, Score: {updated_lead.validation_score}")
+        print(f"Validation details: {updated_lead.validation_details}")
         
         # Record the conversion for the referral link
         link.increment_conversions()

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'lead_capture',
     'rest_framework',
+    'lead_validation',
 ]
 
 MIDDLEWARE = [
