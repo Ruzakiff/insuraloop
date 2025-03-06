@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Leads for Code: {{ link.code }}</h1>
+        <a href="{% url 'referral_system:my_links' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to My Links
+        </a>
+    </div>
+    
+    {% if leads %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Insurance Type</th>
+                        <th>Date Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr>
+                        <td>{{ lead.name }}</td>
+                        <td>{{ lead.email }}</td>
+                        <td>{{ lead.phone }}</td>
+                        <td>{{ lead.get_insurance_type_display }}</td>
+                        <td>{{ lead.created_at|date:"M d, Y g:i A" }}</td>
+                        <td>
+                            <a href="{% url 'referral_system:view_lead_details' lead.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No leads have been submitted through this link yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

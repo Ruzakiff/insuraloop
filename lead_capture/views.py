@@ -15,6 +15,10 @@ def lead_capture(request, code):
     # Get the referral link or 404
     link = get_object_or_404(ReferralLink, code=code, is_active=True)
     
+    # For GET requests, increment the click counter
+    if request.method == 'GET':
+        link.increment_clicks()
+    
     if request.method == 'POST':
         # Create the lead from form data
         lead = Lead(
@@ -49,6 +53,8 @@ def lead_capture(request, code):
             lead.vehicle_model = request.POST.get('vehicle_model', '')
             lead.date_of_birth = request.POST.get('date_of_birth', None)
             lead.current_insurer = request.POST.get('current_insurer', '')
+            lead.vehicle_usage = request.POST.get('vehicle_usage', '')
+            lead.annual_mileage = request.POST.get('annual_mileage', None)
             
         elif request.POST.get('insurance_type') == 'home':
             lead.property_type = request.POST.get('property_type', '')
@@ -56,9 +62,12 @@ def lead_capture(request, code):
             lead.year_built = request.POST.get('year_built', None)
             lead.square_footage = request.POST.get('square_footage', None)
             lead.current_insurer = request.POST.get('current_insurer', '')
+            lead.num_bedrooms = request.POST.get('num_bedrooms', None)
+            lead.num_bathrooms = request.POST.get('num_bathrooms', None)
             
         elif request.POST.get('insurance_type') == 'business':
             lead.business_name = request.POST.get('business_name', '')
+            lead.business_address = request.POST.get('business_address', '')
             lead.industry = request.POST.get('industry', '')
             lead.num_employees = request.POST.get('num_employees', None)
             lead.annual_revenue = request.POST.get('annual_revenue', '')
@@ -67,13 +76,13 @@ def lead_capture(request, code):
         # Save the lead
         lead.save()
         
-        # Increment the conversion for the referral link
+        # Increment conversions
         link.increment_conversions()
         
         # Redirect to thank you page
         return redirect('lead_capture:thank_you', lead_id=lead.id)
     
-    # Changed template name from 'lead_capture/step1_insurance_type.html' to 'lead_capture/lead_form.html'
+    # GET request - display the form
     return render(request, 'lead_capture/lead_form.html', {'code': code})
 
 @require_http_methods(["GET", "POST"])

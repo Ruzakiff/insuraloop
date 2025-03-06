@@ -27,6 +27,8 @@ class Lead(models.Model):
     vehicle_year = models.IntegerField(blank=True, null=True)
     vehicle_make = models.CharField(max_length=50, blank=True, null=True)
     vehicle_model = models.CharField(max_length=50, blank=True, null=True)
+    vehicle_usage = models.CharField(max_length=20, blank=True, null=True)
+    annual_mileage = models.IntegerField(blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     current_insurer = models.CharField(max_length=100, blank=True, null=True)
     
@@ -36,9 +38,12 @@ class Lead(models.Model):
     ownership_status = models.CharField(max_length=20, blank=True, null=True)  # Own or Rent
     year_built = models.IntegerField(blank=True, null=True)
     square_footage = models.IntegerField(blank=True, null=True)
+    num_bedrooms = models.IntegerField(blank=True, null=True)
+    num_bathrooms = models.IntegerField(blank=True, null=True)
     
     # Extended fields for Business Insurance
     business_name = models.CharField(max_length=255, blank=True, null=True)
+    business_address = models.CharField(max_length=255, blank=True, null=True)
     industry = models.CharField(max_length=100, blank=True, null=True)
     num_employees = models.IntegerField(blank=True, null=True)
     annual_revenue = models.CharField(max_length=50, blank=True, null=True)

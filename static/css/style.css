@@ -1,0 +1,66 @@
+/* Custom styles for Insuraloop */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Card hover effects */
+.card.insurance-option {
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.card.insurance-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card.insurance-option.selected {
+    border: 2px solid #0d6efd;
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+}
+
+/* Progress indicators */
+.progress {
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 500;
+}
+
+.form-text {
+    font-size: 0.85rem;
+}
+
+/* Navbar */
+.navbar-brand img {
+    margin-right: 5px;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Lead details */
+.lead-detail-row {
+    margin-bottom: 0.5rem;
+}
+
+.lead-detail-label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* QR code display */
+.qr-code-container {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+} 

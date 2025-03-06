@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Lead Details</h1>
+        <a href="{% url 'referral_system:view_leads' lead.referral_link.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Leads List
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ lead.name }}</p>
+                    <p><strong>Email:</strong> <a href="mailto:{{ lead.email }}">{{ lead.email }}</a></p>
+                    <p><strong>Phone:</strong> <a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></p>
+                    <p><strong>Preferred Contact Method:</strong> {{ lead.get_preferred_contact_method_display }}</p>
+                    {% if lead.preferred_time %}
+                    <p><strong>Preferred Time:</strong> {{ lead.get_preferred_time_display }}</p>
+                    {% endif %}
+                    <p><strong>Submitted:</strong> {{ lead.created_at|date:"M d, Y g:i A" }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Lead Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Insurance Type:</strong> {{ lead.get_insurance_type_display }}</p>
+                    <p><strong>ZIP Code:</strong> {{ lead.zip_code }}</p>
+                    {% if lead.address %}
+                    <p><strong>Address:</strong> {{ lead.address }}</p>
+                    {% endif %}
+                    {% if lead.current_insurer %}
+                    <p><strong>Current Insurer:</strong> {{ lead.current_insurer }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            {% if lead.insurance_type == 'auto' %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Auto Insurance Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if lead.date_of_birth %}
+                    <p><strong>Date of Birth:</strong> {{ lead.date_of_birth|date:"M d, Y" }}</p>
+                    {% endif %}
+                    
+                    {% if lead.vehicle_vin %}
+                    <p><strong>Vehicle VIN:</strong> {{ lead.vehicle_vin }}</p>
+                    {% endif %}
+                    
+                    {% if lead.vehicle_year and lead.vehicle_make and lead.vehicle_model %}
+                    <p><strong>Vehicle:</strong> {{ lead.vehicle_year }} {{ lead.vehicle_make }} {{ lead.vehicle_model }}</p>
+                    {% endif %}
+                    
+                    {% if lead.vehicle_usage %}
+                    <p><strong>Vehicle Usage:</strong> {{ lead.vehicle_usage }}</p>
+                    {% endif %}
+                    
+                    {% if lead.annual_mileage %}
+                    <p><strong>Annual Mileage:</strong> {{ lead.annual_mileage }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% elif lead.insurance_type == 'home' %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Home Insurance Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if lead.property_type %}
+                    <p><strong>Property Type:</strong> {{ lead.property_type }}</p>
+                    {% endif %}
+                    
+                    {% if lead.ownership_status %}
+                    <p><strong>Ownership Status:</strong> {{ lead.ownership_status }}</p>
+                    {% endif %}
+                    
+                    {% if lead.year_built %}
+                    <p><strong>Year Built:</strong> {{ lead.year_built }}</p>
+                    {% endif %}
+                    
+                    {% if lead.square_footage %}
+                    <p><strong>Square Footage:</strong> {{ lead.square_footage }}</p>
+                    {% endif %}
+                    
+                    {% if lead.num_bedrooms %}
+                    <p><strong>Bedrooms:</strong> {{ lead.num_bedrooms }}</p>
+                    {% endif %}
+                    
+                    {% if lead.num_bathrooms %}
+                    <p><strong>Bathrooms:</strong> {{ lead.num_bathrooms }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% elif lead.insurance_type == 'business' %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Business Insurance Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if lead.business_name %}
+                    <p><strong>Business Name:</strong> {{ lead.business_name }}</p>
+                    {% endif %}
+                    
+                    {% if lead.business_address %}
+                    <p><strong>Business Address:</strong> {{ lead.business_address }}</p>
+                    {% endif %}
+                    
+                    {% if lead.industry %}
+                    <p><strong>Industry:</strong> {{ lead.industry }}</p>
+                    {% endif %}
+                    
+                    {% if lead.num_employees %}
+                    <p><strong>Number of Employees:</strong> {{ lead.num_employees }}</p>
+                    {% endif %}
+                    
+                    {% if lead.annual_revenue %}
+                    <p><strong>Annual Revenue:</strong> {{ lead.annual_revenue }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if lead.notes %}
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Additional Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ lead.notes|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

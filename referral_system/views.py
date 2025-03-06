@@ -4,7 +4,10 @@ from django.http import JsonResponse, HttpResponse
 import random
 import string
 from .models import ReferralLink
+from lead_capture.models import Lead
 from django.urls import reverse
+import qrcode
+import io
 
 # Create your views here.
 
@@ -76,7 +79,7 @@ def generate_referral_link(request):
                 'full_url': link.generate_full_url(request),
                 'qr_url': reverse('referral_system:view_qr_code', kwargs={'link_id': link.id})
             })
-        return redirect('referral_system:my_referral_links')
+        return redirect('referral_system:my_links')
     
     return render(request, 'referral_system/generate_link.html')
 
@@ -92,15 +95,30 @@ def disclaimer(request):
 
 @login_required
 def download_qr_code(request, link_id):
-    """Download a QR code for a referral link"""
+    """Download QR code for a specific referral link"""
     link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
     
-    # Generate the QR code
-    buffer = link.generate_qr_code(request)
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(link.generate_full_url(request))
+    qr.make(fit=True)
+    
+    # Create QR code image
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Save to BytesIO
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
     
     # Create response
-    response = HttpResponse(buffer.getvalue(), content_type="image/png")
-    response['Content-Disposition'] = f'attachment; filename="qrcode-{link.code}.png"'
+    response = HttpResponse(buffer, content_type='image/png')
+    response['Content-Disposition'] = f'attachment; filename="qr_code_{link.code}.png"'
     
     return response
 
@@ -109,3 +127,44 @@ def view_qr_code(request, link_id):
     """View a QR code for a referral link with print options"""
     link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
     return render(request, 'referral_system/qr_code.html', {'link': link})
+
+def my_links(request):
+    """View all referral links for the logged-in user"""
+    links = ReferralLink.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Calculate totals
+    total_clicks = sum(link.clicks for link in links)
+    total_conversions = sum(link.conversions for link in links)
+    
+    # Calculate conversion rate
+    conversion_rate = 0
+    if total_clicks > 0:
+        conversion_rate = (total_conversions / total_clicks) * 100
+    
+    # Calculate conversion rate for each link
+    for link in links:
+        if link.clicks > 0:
+            link.conversion_rate = (link.conversions / link.clicks) * 100
+        else:
+            link.conversion_rate = 0
+    
+    # Add totals to links
+    links.total_clicks = total_clicks
+    links.total_conversions = total_conversions
+    links.conversion_rate = conversion_rate
+    
+    return render(request, 'referral_system/my_links.html', {'links': links})
+
+def view_leads(request, link_id):
+    """View leads for a specific referral link"""
+    link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
+    leads = Lead.objects.filter(referral_link=link).order_by('-created_at')
+    
+    return render(request, 'referral_system/view_leads.html', {'link': link, 'leads': leads})
+
+def view_lead_details(request, lead_id):
+    """View detailed information for a specific lead"""
+    # Make sure the lead belongs to the current user
+    lead = get_object_or_404(Lead, id=lead_id, referral_link__user=request.user)
+    
+    return render(request, 'referral_system/lead_details.html', {'lead': lead})

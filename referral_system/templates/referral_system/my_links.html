@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-4">
@@ -10,6 +11,36 @@
         </a>
     </div>
     
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Clicks</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ links.total_clicks }}</h2>
+                    <p class="card-text">People who visited your referral links</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Submissions</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ links.total_conversions }}</h2>
+                    <p class="card-text">People who completed your lead forms</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Conversion Rate</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ links.conversion_rate|floatformat:1 }}%</h2>
+                    <p class="card-text">Percentage of visitors who submitted forms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     {% if links %}
         <div class="table-responsive">
             <table class="table table-striped">
@@ -18,6 +49,8 @@
                         <th>Code</th>
                         <th>Created</th>
                         <th>Clicks</th>
+                        <th>Submissions</th>
+                        <th>Conversion Rate</th>
                         <th>Status</th>
                         <th>Link</th>
                     </tr>
@@ -28,6 +61,14 @@
                         <td>{{ link.code }}</td>
                         <td>{{ link.created_at|date:"M d, Y" }}</td>
                         <td>{{ link.clicks }}</td>
+                        <td>{{ link.conversions }}</td>
+                        <td>
+                            {% if link.clicks > 0 %}
+                                {{ link.conversion_rate|floatformat:1 }}%
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td>
                             {% if link.is_active %}
                                 <span class="badge bg-success">Active</span>
@@ -43,6 +84,11 @@
                                 <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-text="{{ link.generate_full_url }}" title="Copy Link">
                                     <i class="bi bi-clipboard"></i> Copy
                                 </button>
+                                {% if link.conversions > 0 %}
+                                <a href="{% url 'referral_system:view_leads' link.id %}" class="btn btn-sm btn-outline-success" title="View Leads">
+                                    <i class="bi bi-person-lines-fill"></i> Leads
+                                </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -65,10 +111,10 @@
     // Show tooltip when copied
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const originalText = this.textContent;
-            this.textContent = 'Copied!';
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-check"></i> Copied!';
             setTimeout(() => {
-                this.textContent = originalText;
+                this.innerHTML = originalText;
             }, 1500);
         });
     });

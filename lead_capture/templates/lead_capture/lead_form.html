@@ -72,11 +72,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">
                                     <label for="zip_code_auto" class="form-label">ZIP Code</label>
-                                    <input type="text" class="form-control" id="zip_code_auto" name="zip_code" placeholder="Enter ZIP code">
+                                    <input type="text" class="form-control" id="zip_code_auto" name="zip_code" placeholder="Enter ZIP code" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="date_of_birth" class="form-label">Date of Birth</label>
-                                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth">
+                                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
                                 </div>
                             </div>
                             
@@ -84,6 +84,96 @@
                                 <label for="vehicle_vin" class="form-label">Vehicle VIN (if known)</label>
                                 <input type="text" class="form-control" id="vehicle_vin" name="vehicle_vin" placeholder="Enter VIN to auto-fill vehicle details">
                                 <div class="form-text">Don't know your VIN? No problem, we'll ask for your vehicle details next.</div>
+                            </div>
+                            
+                            <!-- Vehicle details (hidden initially, shown if VIN is not provided) -->
+                            <div id="vehicle-details" style="display: none;">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="vehicle_year" class="form-label">Vehicle Year</label>
+                                        <select class="form-select" id="vehicle_year" name="vehicle_year">
+                                            <option value="">Select Year</option>
+                                            <!-- Populate years dynamically -->
+                                            <script>
+                                                const currentYear = new Date().getFullYear();
+                                                for (let year = currentYear; year >= currentYear - 30; year--) {
+                                                    document.write(`<option value="${year}">${year}</option>`);
+                                                }
+                                            </script>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="vehicle_make" class="form-label">Vehicle Make</label>
+                                        <select class="form-select" id="vehicle_make" name="vehicle_make">
+                                            <option value="">Select Make</option>
+                                            <option value="Acura">Acura</option>
+                                            <option value="Audi">Audi</option>
+                                            <option value="BMW">BMW</option>
+                                            <option value="Buick">Buick</option>
+                                            <option value="Cadillac">Cadillac</option>
+                                            <option value="Chevrolet">Chevrolet</option>
+                                            <option value="Chrysler">Chrysler</option>
+                                            <option value="Dodge">Dodge</option>
+                                            <option value="Ford">Ford</option>
+                                            <option value="GMC">GMC</option>
+                                            <option value="Honda">Honda</option>
+                                            <option value="Hyundai">Hyundai</option>
+                                            <option value="Infiniti">Infiniti</option>
+                                            <option value="Jeep">Jeep</option>
+                                            <option value="Kia">Kia</option>
+                                            <option value="Lexus">Lexus</option>
+                                            <option value="Lincoln">Lincoln</option>
+                                            <option value="Mazda">Mazda</option>
+                                            <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                            <option value="Nissan">Nissan</option>
+                                            <option value="Subaru">Subaru</option>
+                                            <option value="Tesla">Tesla</option>
+                                            <option value="Toyota">Toyota</option>
+                                            <option value="Volkswagen">Volkswagen</option>
+                                            <option value="Volvo">Volvo</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="vehicle_model" class="form-label">Vehicle Model</label>
+                                        <input type="text" class="form-control" id="vehicle_model" name="vehicle_model" placeholder="e.g., Civic, Accord">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="current_insurer" class="form-label">Current Insurance Provider</label>
+                                        <select class="form-select" id="current_insurer" name="current_insurer">
+                                            <option value="">Select Provider</option>
+                                            <option value="GEICO">GEICO</option>
+                                            <option value="State Farm">State Farm</option>
+                                            <option value="Progressive">Progressive</option>
+                                            <option value="Allstate">Allstate</option>
+                                            <option value="USAA">USAA</option>
+                                            <option value="Liberty Mutual">Liberty Mutual</option>
+                                            <option value="Farmers">Farmers</option>
+                                            <option value="Nationwide">Nationwide</option>
+                                            <option value="American Family">American Family</option>
+                                            <option value="Travelers">Travelers</option>
+                                            <option value="None">None (Not Currently Insured)</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="vehicle_usage" class="form-label">Vehicle Usage</label>
+                                        <select class="form-select" id="vehicle_usage" name="vehicle_usage">
+                                            <option value="personal">Personal</option>
+                                            <option value="commute">Commute</option>
+                                            <option value="business">Business</option>
+                                            <option value="rideshare">Rideshare (Uber/Lyft)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="annual_mileage" class="form-label">Annual Mileage (estimated)</label>
+                                    <input type="number" class="form-control" id="annual_mileage" name="annual_mileage" placeholder="e.g., 12000">
+                                </div>
                             </div>
                         </div>
                         
@@ -94,11 +184,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">
                                     <label for="zip_code_home" class="form-label">ZIP Code</label>
-                                    <input type="text" class="form-control" id="zip_code_home" name="zip_code" placeholder="Enter ZIP code">
+                                    <input type="text" class="form-control" id="zip_code_home" name="zip_code" placeholder="Enter ZIP code" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="ownership_status" class="form-label">Do you own or rent?</label>
-                                    <select class="form-select" id="ownership_status" name="ownership_status">
+                                    <select class="form-select" id="ownership_status" name="ownership_status" required>
                                         <option value="">Select one</option>
                                         <option value="own">Own</option>
                                         <option value="rent">Rent</option>
@@ -108,7 +198,49 @@
                             
                             <div class="mb-3">
                                 <label for="address" class="form-label">Street Address</label>
-                                <input type="text" class="form-control" id="address" name="address" placeholder="Enter your full street address">
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Enter your full street address" required>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="property_type" class="form-label">Property Type</label>
+                                    <select class="form-select" id="property_type" name="property_type">
+                                        <option value="single_family">Single Family Home</option>
+                                        <option value="condo">Condominium</option>
+                                        <option value="townhouse">Townhouse</option>
+                                        <option value="duplex">Duplex</option>
+                                        <option value="apartment">Apartment</option>
+                                        <option value="mobile">Mobile Home</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="year_built" class="form-label">Year Built (approx.)</label>
+                                    <input type="number" class="form-control" id="year_built" name="year_built" placeholder="e.g., 1990">
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="square_footage" class="form-label">Square Footage (approx.)</label>
+                                    <input type="number" class="form-control" id="square_footage" name="square_footage" placeholder="e.g., 2000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="current_insurer_home" class="form-label">Current Insurance Provider</label>
+                                    <select class="form-select" id="current_insurer_home" name="current_insurer">
+                                        <option value="">Select Provider</option>
+                                        <option value="State Farm">State Farm</option>
+                                        <option value="Allstate">Allstate</option>
+                                        <option value="Liberty Mutual">Liberty Mutual</option>
+                                        <option value="Farmers">Farmers</option>
+                                        <option value="Nationwide">Nationwide</option>
+                                        <option value="American Family">American Family</option>
+                                        <option value="Travelers">Travelers</option>
+                                        <option value="USAA">USAA</option>
+                                        <option value="None">None (Not Currently Insured)</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         
@@ -118,53 +250,93 @@
                             
                             <div class="mb-3">
                                 <label for="business_name" class="form-label">Business Name</label>
-                                <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Enter business name">
+                                <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Enter your business name" required>
                             </div>
                             
                             <div class="row mb-3">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6">
                                     <label for="zip_code_business" class="form-label">ZIP Code</label>
-                                    <input type="text" class="form-control" id="zip_code_business" name="zip_code" placeholder="Enter ZIP code">
+                                    <input type="text" class="form-control" id="zip_code_business" name="zip_code" placeholder="Enter ZIP code" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6">
                                     <label for="industry" class="form-label">Industry</label>
-                                    <select class="form-select" id="industry" name="industry">
-                                        <option value="">Select industry</option>
+                                    <select class="form-select" id="industry" name="industry" required>
+                                        <option value="">Select Industry</option>
                                         <option value="retail">Retail</option>
-                                        <option value="hospitality">Hospitality</option>
-                                        <option value="technology">Technology</option>
-                                        <option value="manufacturing">Manufacturing</option>
+                                        <option value="restaurant">Restaurant/Food Service</option>
                                         <option value="construction">Construction</option>
                                         <option value="professional">Professional Services</option>
+                                        <option value="healthcare">Healthcare</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="manufacturing">Manufacturing</option>
+                                        <option value="real_estate">Real Estate</option>
+                                        <option value="financial">Financial Services</option>
                                         <option value="other">Other</option>
                                     </select>
                                 </div>
                             </div>
                             
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="num_employees" class="form-label">Number of Employees</label>
+                                    <select class="form-select" id="num_employees" name="num_employees" required>
+                                        <option value="1">Just me (1)</option>
+                                        <option value="2-5">2-5 employees</option>
+                                        <option value="6-10">6-10 employees</option>
+                                        <option value="11-25">11-25 employees</option>
+                                        <option value="26-50">26-50 employees</option>
+                                        <option value="50+">More than 50 employees</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="annual_revenue" class="form-label">Annual Revenue</label>
+                                    <select class="form-select" id="annual_revenue" name="annual_revenue">
+                                        <option value="Under $100K">Under $100,000</option>
+                                        <option value="$100K-$250K">$100,000 - $250,000</option>
+                                        <option value="$250K-$500K">$250,000 - $500,000</option>
+                                        <option value="$500K-$1M">$500,000 - $1,000,000</option>
+                                        <option value="$1M-$5M">$1,000,000 - $5,000,000</option>
+                                        <option value="$5M+">More than $5,000,000</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div class="mb-3">
-                                <label for="num_employees" class="form-label">Number of Employees</label>
-                                <input type="number" class="form-control" id="num_employees" name="num_employees" placeholder="Enter number of employees">
+                                <label for="current_insurer_business" class="form-label">Current Insurance Provider</label>
+                                <select class="form-select" id="current_insurer_business" name="current_insurer">
+                                    <option value="">Select Provider</option>
+                                    <option value="The Hartford">The Hartford</option>
+                                    <option value="Nationwide">Nationwide</option>
+                                    <option value="Progressive">Progressive</option>
+                                    <option value="Travelers">Travelers</option>
+                                    <option value="State Farm">State Farm</option>
+                                    <option value="Farmers">Farmers</option>
+                                    <option value="Liberty Mutual">Liberty Mutual</option>
+                                    <option value="Chubb">Chubb</option>
+                                    <option value="None">None (Not Currently Insured)</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                         </div>
                         
-                        <!-- Step 3: Contact Information (Common for all types) -->
+                        <!-- Step 3: Contact Information -->
                         <div id="step-3" style="display: none;">
                             <h4 class="text-center mb-4">Your Contact Information</h4>
                             
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
-                            </div>
-                            
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address" required>
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" required>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="(555) 555-5555" required>
                                 </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com" required>
                             </div>
                             
                             <div class="row mb-3">
@@ -172,54 +344,45 @@
                                     <label for="preferred_contact_method" class="form-label">Preferred Contact Method</label>
                                     <select class="form-select" id="preferred_contact_method" name="preferred_contact_method">
                                         <option value="phone">Phone Call</option>
-                                        <option value="email">Email</option>
                                         <option value="text">Text Message</option>
+                                        <option value="email">Email</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="preferred_time" class="form-label">Best Time to Contact</label>
                                     <select class="form-select" id="preferred_time" name="preferred_time">
-                                        <option value="morning">Morning</option>
-                                        <option value="afternoon">Afternoon</option>
-                                        <option value="evening">Evening</option>
+                                        <option value="morning">Morning (8am-12pm)</option>
+                                        <option value="afternoon">Afternoon (12pm-5pm)</option>
+                                        <option value="evening">Evening (5pm-8pm)</option>
                                     </select>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="notes" class="form-label">Additional Information</label>
-                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional details you'd like us to know?"></textarea>
+                                <label for="notes" class="form-label">Additional Information (Optional)</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any specific questions or concerns?"></textarea>
                             </div>
                         </div>
                         
-                        <!-- Step 4: Review & Submit -->
+                        <!-- Step 4: Review and Submit -->
                         <div id="step-4" style="display: none;">
                             <h4 class="text-center mb-4">Review Your Information</h4>
                             
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div id="summary-content">
-                                        <!-- Will be populated with JavaScript -->
-                                    </div>
-                                </div>
+                            <div id="summary-content" class="mb-4">
+                                <!-- This will be populated with the summary -->
                             </div>
                             
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="agree-terms" required>
-                                    <label class="form-check-label" for="agree-terms">
-                                        I agree to be contacted by an insurance agent regarding my quote.
-                                    </label>
-                                </div>
+                            <div class="alert alert-info mb-4">
+                                <p class="mb-0">By submitting this form, you agree to be contacted by an insurance agent regarding your quote request.</p>
                             </div>
                         </div>
                         
                         <!-- Navigation Buttons -->
                         <div class="d-flex justify-content-between mt-4">
-                            <button type="button" id="prev-btn" class="btn btn-outline-secondary" style="display: none;">Previous</button>
+                            <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
                             <div class="ms-auto">
-                                <button type="button" id="next-btn" class="btn btn-primary">Next</button>
-                                <button type="submit" id="submit-btn" class="btn btn-success" style="display: none;">Submit</button>
+                                <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">Submit Request</button>
                             </div>
                         </div>
                     </form>
@@ -230,225 +393,398 @@
 </div>
 
 <script>
-// Global variables
-let currentStep = 1;
-let insuranceType = '';
-let totalSteps = 4;
-
-// Elements
-const insuranceOptions = document.querySelectorAll('.insurance-option');
-const insuranceTypeInput = document.getElementById('insurance_type');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const submitBtn = document.getElementById('submit-btn');
-const progressBar = document.getElementById('progress-bar');
-const timeEstimate = document.getElementById('time-estimate');
-const step1 = document.getElementById('step-1');
-const step2Auto = document.getElementById('step-2-auto');
-const step2Home = document.getElementById('step-2-home');
-const step2Business = document.getElementById('step-2-business');
-const step3 = document.getElementById('step-3');
-const step4 = document.getElementById('step-4');
-const summaryContent = document.getElementById('summary-content');
-
-// Function to select insurance type
-function selectInsurance(type) {
-    // Reset all cards
-    insuranceOptions.forEach(option => {
-        option.classList.remove('border-primary');
-        option.classList.remove('bg-light');
+document.addEventListener('DOMContentLoaded', function() {
+    // Element references
+    const step1 = document.getElementById('step-1');
+    const step2Auto = document.getElementById('step-2-auto');
+    const step2Home = document.getElementById('step-2-home');
+    const step2Business = document.getElementById('step-2-business');
+    const step3 = document.getElementById('step-3');
+    const step4 = document.getElementById('step-4');
+    const vehicleDetails = document.getElementById('vehicle-details');
+    
+    const progressBar = document.getElementById('progress-bar');
+    const timeEstimate = document.getElementById('time-estimate');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const summaryContent = document.getElementById('summary-content');
+    
+    // State variables
+    let currentStep = 1;
+    let insuranceType = null;
+    const totalSteps = 4;
+    
+    // VIN input event handler to show/hide vehicle details
+    const vinInput = document.getElementById('vehicle_vin');
+    vinInput.addEventListener('blur', function() {
+        const vin = this.value;
+        
+        if (vin && vin.length >= 17) {
+            // If valid VIN is entered, hide the manual entry fields
+            vehicleDetails.style.display = 'none';
+            
+            // In a real app, you would call an API to get vehicle details
+            // For now, just simulate getting details
+            setTimeout(function() {
+                document.getElementById('vehicle_year').value = '2019';
+                document.getElementById('vehicle_make').value = 'Honda';
+                document.getElementById('vehicle_model').value = 'Accord';
+                alert('Vehicle details retrieved successfully!');
+            }, 1000);
+        } else {
+            // If no valid VIN, show the manual entry fields
+            vehicleDetails.style.display = 'block';
+        }
     });
     
-    // Highlight selected card
-    const selectedCard = document.querySelector(`.insurance-option[onclick="selectInsurance('${type}')"]`);
-    selectedCard.classList.add('border-primary');
-    selectedCard.classList.add('bg-light');
+    // Event handlers for navigation
+    nextBtn.addEventListener('click', function() {
+        // Validate the current step
+        if (!validateCurrentStep()) {
+            return;
+        }
+        
+        // Hide current step, increment step counter, then show new step
+        hideCurrentStep();
+        currentStep++;
+        showCurrentStep();
+        updateUI();
+        
+        // If we're on the review step, generate the summary
+        if (currentStep === 4) {
+            generateSummary();
+        }
+        
+        console.log(`Moved to step ${currentStep}`);
+    });
     
-    // Set insurance type
-    insuranceType = type;
-    insuranceTypeInput.value = type;
+    prevBtn.addEventListener('click', function() {
+        // Hide current step, decrement step counter, then show new step
+        hideCurrentStep();
+        currentStep--;
+        showCurrentStep();
+        updateUI();
+        
+        console.log(`Moved back to step ${currentStep}`);
+    });
     
-    console.log('Selected insurance type:', type);
-}
-
-// Function to go to next step
-nextBtn.addEventListener('click', function() {
-    // Validate current step
-    if (currentStep === 1 && !insuranceType) {
-        alert('Please select an insurance type to continue');
-        return;
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        // Get the form data
+        const form = document.getElementById('lead-form');
+        
+        // Ensure the insurance type is correctly set
+        document.getElementById('insurance_type').value = insuranceType;
+        
+        // Submit the form
+        console.log("Submitting form...");
+        form.submit();
+    });
+    
+    // Insurance type selection
+    window.selectInsurance = function(type) {
+        insuranceType = type;
+        document.getElementById('insurance_type').value = type;
+        
+        // Update all insurance type cards
+        const cards = document.querySelectorAll('.insurance-option');
+        cards.forEach(card => {
+            card.classList.remove('border-primary', 'bg-light');
+        });
+        
+        // Highlight the selected card
+        event.currentTarget.classList.add('border-primary', 'bg-light');
+        
+        console.log(`Selected insurance type: ${type}`);
+    };
+    
+    // Function to validate the current step
+    function validateCurrentStep() {
+        if (currentStep === 1) {
+            if (!insuranceType) {
+                alert('Please select an insurance type.');
+                return false;
+            }
+        } else if (currentStep === 2) {
+            // Validate step 2 fields based on insurance type
+            if (insuranceType === 'auto') {
+                const zipCode = document.getElementById('zip_code_auto').value;
+                const dob = document.getElementById('date_of_birth').value;
+                
+                if (!zipCode) {
+                    alert('Please enter your ZIP code.');
+                    return false;
+                }
+                
+                if (!dob) {
+                    alert('Please enter your date of birth.');
+                    return false;
+                }
+                
+                // If VIN is empty, check if vehicle details are filled
+                const vin = document.getElementById('vehicle_vin').value;
+                if (!vin || vin.trim().length < 17) {
+                    const vehicleYear = document.getElementById('vehicle_year').value;
+                    const vehicleMake = document.getElementById('vehicle_make').value;
+                    
+                    if (!vehicleYear || !vehicleMake) {
+                        alert('Please provide your vehicle information.');
+                        return false;
+                    }
+                }
+            } else if (insuranceType === 'home') {
+                const zipCode = document.getElementById('zip_code_home').value;
+                const ownershipStatus = document.getElementById('ownership_status').value;
+                const address = document.getElementById('address').value;
+                
+                if (!zipCode) {
+                    alert('Please enter your ZIP code.');
+                    return false;
+                }
+                
+                if (!ownershipStatus) {
+                    alert('Please indicate if you own or rent.');
+                    return false;
+                }
+                
+                if (!address) {
+                    alert('Please enter your address.');
+                    return false;
+                }
+            } else if (insuranceType === 'business') {
+                const businessName = document.getElementById('business_name').value;
+                const zipCode = document.getElementById('zip_code_business').value;
+                const industry = document.getElementById('industry').value;
+                
+                if (!businessName) {
+                    alert('Please enter your business name.');
+                    return false;
+                }
+                
+                if (!zipCode) {
+                    alert('Please enter your ZIP code.');
+                    return false;
+                }
+                
+                if (!industry) {
+                    alert('Please select your industry.');
+                    return false;
+                }
+            }
+        } else if (currentStep === 3) {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name) {
+                alert('Please enter your name.');
+                return false;
+            }
+            
+            if (!phone) {
+                alert('Please enter your phone number.');
+                return false;
+            }
+            
+            if (!email) {
+                alert('Please enter your email address.');
+                return false;
+            }
+        }
+        
+        return true;
     }
     
-    // Hide current step
-    hideCurrentStep();
-    
-    // Advance to next step
-    currentStep++;
-    
-    // Show new step
-    showCurrentStep();
-    
-    // Update UI
-    updateUI();
-    
-    // Generate summary if on final step
-    if (currentStep === 4) {
-        generateSummary();
+    // Function to hide current step
+    function hideCurrentStep() {
+        if (currentStep === 1) {
+            step1.style.display = 'none';
+        } else if (currentStep === 2) {
+            if (insuranceType === 'auto') step2Auto.style.display = 'none';
+            else if (insuranceType === 'home') step2Home.style.display = 'none';
+            else if (insuranceType === 'business') step2Business.style.display = 'none';
+        } else if (currentStep === 3) {
+            step3.style.display = 'none';
+        } else if (currentStep === 4) {
+            step4.style.display = 'none';
+        }
     }
-});
-
-// Function to go to previous step
-prevBtn.addEventListener('click', function() {
-    // Hide current step
-    hideCurrentStep();
     
-    // Go back to previous step
-    currentStep--;
-    
-    // Show new step
-    showCurrentStep();
-    
-    // Update UI
-    updateUI();
-});
-
-// Function to hide current step
-function hideCurrentStep() {
-    if (currentStep === 1) {
-        step1.style.display = 'none';
-    } else if (currentStep === 2) {
-        if (insuranceType === 'auto') step2Auto.style.display = 'none';
-        else if (insuranceType === 'home') step2Home.style.display = 'none';
-        else if (insuranceType === 'business') step2Business.style.display = 'none';
-    } else if (currentStep === 3) {
-        step3.style.display = 'none';
-    } else if (currentStep === 4) {
-        step4.style.display = 'none';
+    // Function to show current step
+    function showCurrentStep() {
+        if (currentStep === 1) {
+            step1.style.display = 'block';
+        } else if (currentStep === 2) {
+            if (insuranceType === 'auto') step2Auto.style.display = 'block';
+            else if (insuranceType === 'home') step2Home.style.display = 'block';
+            else if (insuranceType === 'business') step2Business.style.display = 'block';
+        } else if (currentStep === 3) {
+            step3.style.display = 'block';
+        } else if (currentStep === 4) {
+            step4.style.display = 'block';
+        }
     }
-}
-
-// Function to show current step
-function showCurrentStep() {
-    if (currentStep === 1) {
-        step1.style.display = 'block';
-    } else if (currentStep === 2) {
-        if (insuranceType === 'auto') step2Auto.style.display = 'block';
-        else if (insuranceType === 'home') step2Home.style.display = 'block';
-        else if (insuranceType === 'business') step2Business.style.display = 'block';
-    } else if (currentStep === 3) {
-        step3.style.display = 'block';
-    } else if (currentStep === 4) {
-        step4.style.display = 'block';
-    }
-}
-
-// Function to update UI elements
-function updateUI() {
-    // Update progress bar
-    const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
-    progressBar.style.width = `${progress}%`;
-    progressBar.setAttribute('aria-valuenow', progress);
     
-    // Update step dots
-    for (let i = 1; i <= 4; i++) {
-        const dot = document.getElementById(`dot-${i}`);
-        if (i <= currentStep) {
-            dot.classList.remove('bg-light');
-            dot.classList.add('bg-primary');
+    // Function to update UI elements
+    function updateUI() {
+        // Update progress bar
+        const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        
+        // Update step dots
+        for (let i = 1; i <= 4; i++) {
+            const dot = document.getElementById(`dot-${i}`);
+            if (i <= currentStep) {
+                dot.classList.remove('bg-light');
+                dot.classList.add('bg-primary');
+            } else {
+                dot.classList.remove('bg-primary');
+                dot.classList.add('bg-light');
+            }
+        }
+        
+        // Update time estimate
+        const timeEstimates = ['60 seconds', '45 seconds', '30 seconds', '15 seconds'];
+        timeEstimate.textContent = timeEstimates[currentStep - 1];
+        
+        // Show/hide navigation buttons
+        if (currentStep > 1) {
+            prevBtn.style.display = 'block';
         } else {
-            dot.classList.remove('bg-primary');
-            dot.classList.add('bg-light');
+            prevBtn.style.display = 'none';
+        }
+        
+        if (currentStep < totalSteps) {
+            nextBtn.style.display = 'block';
+            submitBtn.style.display = 'none';
+        } else {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'block';
         }
     }
     
-    // Update time estimate
-    const timeEstimates = ['60 seconds', '45 seconds', '30 seconds', '15 seconds'];
-    timeEstimate.textContent = timeEstimates[currentStep - 1];
-    
-    // Show/hide navigation buttons
-    if (currentStep > 1) {
-        prevBtn.style.display = 'block';
-    } else {
-        prevBtn.style.display = 'none';
-    }
-    
-    if (currentStep < totalSteps) {
-        nextBtn.style.display = 'block';
-        submitBtn.style.display = 'none';
-    } else {
-        nextBtn.style.display = 'none';
-        submitBtn.style.display = 'block';
-    }
-}
-
-// Function to generate summary
-function generateSummary() {
-    const form = document.getElementById('lead-form');
-    const formData = new FormData(form);
-    
-    let summary = '<div class="list-group list-group-flush">';
-    
-    // Insurance type
-    summary += `<div class="list-group-item"><strong>Insurance Type:</strong> ${insuranceType.charAt(0).toUpperCase() + insuranceType.slice(1)} Insurance</div>`;
-    
-    // Add contact info
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const phone = formData.get('phone');
-    
-    if (name) summary += `<div class="list-group-item"><strong>Name:</strong> ${name}</div>`;
-    if (email) summary += `<div class="list-group-item"><strong>Email:</strong> ${email}</div>`;
-    if (phone) summary += `<div class="list-group-item"><strong>Phone:</strong> ${phone}</div>`;
-    
-    // Add type-specific info
-    if (insuranceType === 'auto') {
-        const zipCode = formData.get('zip_code');
-        const dob = formData.get('date_of_birth');
-        const vin = formData.get('vehicle_vin');
+    // Function to generate summary
+    function generateSummary() {
+        const form = document.getElementById('lead-form');
+        const formData = new FormData(form);
         
-        if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
-        if (dob) summary += `<div class="list-group-item"><strong>Date of Birth:</strong> ${dob}</div>`;
-        if (vin) summary += `<div class="list-group-item"><strong>VIN:</strong> ${vin}</div>`;
-    } else if (insuranceType === 'home') {
-        const zipCode = formData.get('zip_code');
-        const address = formData.get('address');
-        const ownershipStatus = formData.get('ownership_status');
+        let summary = '<div class="list-group list-group-flush">';
         
-        if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
-        if (address) summary += `<div class="list-group-item"><strong>Address:</strong> ${address}</div>`;
-        if (ownershipStatus) {
-            const status = ownershipStatus === 'own' ? 'Owner' : 'Renter';
-            summary += `<div class="list-group-item"><strong>Ownership:</strong> ${status}</div>`;
+        // Insurance type
+        summary += `<div class="list-group-item"><strong>Insurance Type:</strong> ${insuranceType.charAt(0).toUpperCase() + insuranceType.slice(1)} Insurance</div>`;
+        
+        // Add contact info
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const phone = formData.get('phone');
+        
+        if (name) summary += `<div class="list-group-item"><strong>Name:</strong> ${name}</div>`;
+        if (email) summary += `<div class="list-group-item"><strong>Email:</strong> ${email}</div>`;
+        if (phone) summary += `<div class="list-group-item"><strong>Phone:</strong> ${phone}</div>`;
+        
+        // Add type-specific info
+        if (insuranceType === 'auto') {
+            const zipCode = formData.get('zip_code');
+            const dob = formData.get('date_of_birth');
+            const vin = formData.get('vehicle_vin');
+            
+            if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
+            if (dob) summary += `<div class="list-group-item"><strong>Date of Birth:</strong> ${dob}</div>`;
+            
+            if (vin && vin.length >= 17) {
+                summary += `<div class="list-group-item"><strong>VIN:</strong> ${vin}</div>`;
+            } else {
+                const vehicleYear = formData.get('vehicle_year');
+                const vehicleMake = formData.get('vehicle_make');
+                const vehicleModel = formData.get('vehicle_model');
+                
+                if (vehicleYear) summary += `<div class="list-group-item"><strong>Vehicle Year:</strong> ${vehicleYear}</div>`;
+                if (vehicleMake) summary += `<div class="list-group-item"><strong>Vehicle Make:</strong> ${vehicleMake}</div>`;
+                if (vehicleModel) summary += `<div class="list-group-item"><strong>Vehicle Model:</strong> ${vehicleModel}</div>`;
+            }
+            
+            const vehicleUsage = formData.get('vehicle_usage');
+            const annualMileage = formData.get('annual_mileage');
+            const currentInsurer = formData.get('current_insurer');
+            
+            if (vehicleUsage) summary += `<div class="list-group-item"><strong>Vehicle Usage:</strong> ${vehicleUsage}</div>`;
+            if (annualMileage) summary += `<div class="list-group-item"><strong>Annual Mileage:</strong> ${annualMileage}</div>`;
+            if (currentInsurer) summary += `<div class="list-group-item"><strong>Current Insurer:</strong> ${currentInsurer}</div>`;
+            
+        } else if (insuranceType === 'home') {
+            const zipCode = formData.get('zip_code');
+            const address = formData.get('address');
+            const ownershipStatus = formData.get('ownership_status');
+            
+            if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
+            if (address) summary += `<div class="list-group-item"><strong>Address:</strong> ${address}</div>`;
+            if (ownershipStatus) {
+                const status = ownershipStatus === 'own' ? 'Owner' : 'Renter';
+                summary += `<div class="list-group-item"><strong>Ownership:</strong> ${status}</div>`;
+            }
+            
+            const propertyType = formData.get('property_type');
+            const yearBuilt = formData.get('year_built');
+            const squareFootage = formData.get('square_footage');
+            const currentInsurer = formData.get('current_insurer');
+            
+            if (propertyType) summary += `<div class="list-group-item"><strong>Property Type:</strong> ${propertyType}</div>`;
+            if (yearBuilt) summary += `<div class="list-group-item"><strong>Year Built:</strong> ${yearBuilt}</div>`;
+            if (squareFootage) summary += `<div class="list-group-item"><strong>Square Footage:</strong> ${squareFootage}</div>`;
+            if (currentInsurer) summary += `<div class="list-group-item"><strong>Current Insurer:</strong> ${currentInsurer}</div>`;
+            
+        } else if (insuranceType === 'business') {
+            const businessName = formData.get('business_name');
+            const zipCode = formData.get('zip_code');
+            const industry = formData.get('industry');
+            const employees = formData.get('num_employees');
+            
+            if (businessName) summary += `<div class="list-group-item"><strong>Business Name:</strong> ${businessName}</div>`;
+            if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
+            if (industry) summary += `<div class="list-group-item"><strong>Industry:</strong> ${industry}</div>`;
+            if (employees) summary += `<div class="list-group-item"><strong>Employees:</strong> ${employees}</div>`;
+            
+            const revenue = formData.get('annual_revenue');
+            const address = formData.get('business_address');
+            const currentInsurer = formData.get('current_insurer');
+            
+            if (revenue) summary += `<div class="list-group-item"><strong>Annual Revenue:</strong> ${revenue}</div>`;
+            if (address) summary += `<div class="list-group-item"><strong>Business Address:</strong> ${address}</div>`;
+            if (currentInsurer) summary += `<div class="list-group-item"><strong>Current Insurer:</strong> ${currentInsurer}</div>`;
         }
-    } else if (insuranceType === 'business') {
-        const businessName = formData.get('business_name');
-        const zipCode = formData.get('zip_code');
-        const industry = formData.get('industry');
-        const employees = formData.get('num_employees');
         
-        if (businessName) summary += `<div class="list-group-item"><strong>Business Name:</strong> ${businessName}</div>`;
-        if (zipCode) summary += `<div class="list-group-item"><strong>ZIP Code:</strong> ${zipCode}</div>`;
-        if (industry) summary += `<div class="list-group-item"><strong>Industry:</strong> ${industry}</div>`;
-        if (employees) summary += `<div class="list-group-item"><strong>Employees:</strong> ${employees}</div>`;
+        summary += '</div>';
+        summaryContent.innerHTML = summary;
     }
     
-    summary += '</div>';
-    summaryContent.innerHTML = summary;
-}
-
-// Add this at the end of your script section
-document.getElementById('submit-btn').addEventListener('click', function(e) {
-    e.preventDefault(); // Prevent default form submission
+    // Event handler for address field
+    document.getElementById('address').addEventListener('blur', function() {
+        const address = this.value;
+        
+        if (address && address.length > 10) {
+            // In a real app, this would call a property data API
+            setTimeout(function() {
+                document.getElementById('year_built').value = '2005';
+                document.getElementById('square_footage').value = '2100';
+                document.getElementById('property_type').value = 'single_family';
+            }, 1000);
+        }
+    });
     
-    // Get the form data
-    const form = document.getElementById('lead-form');
-    
-    // Ensure the insurance type is correctly set
-    document.getElementById('insurance_type').value = insuranceType;
-    
-    // Submit the form
-    console.log("Submitting form...");
-    form.submit();
+    // Event handler for form submission
+    document.getElementById('submitBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        // Ensure the insurance type is correctly set
+        document.getElementById('insurance_type').value = insuranceType;
+        
+        // Submit the form
+        console.log("Submitting form...");
+        document.getElementById('lead-form').submit();
+    });
 });
 </script>
 {% endblock %}

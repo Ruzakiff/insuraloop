@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}QR Code for Referral Link{% endblock %}
 
@@ -53,60 +54,57 @@
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>QR Code for Link: {{ link.code }}</h1>
+        <a href="{% url 'referral_system:my_links' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to My Links
+        </a>
+    </div>
+    
     <div class="row">
-        <div class="col-md-8 mx-auto">
+        <div class="col-md-6 mx-auto">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">QR Code for Referral Link</h3>
-                    <div class="no-print">
-                        <button class="btn btn-light btn-sm" onclick="window.print()">
-                            <i class="bi bi-printer"></i> Print QR Code
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Scan this QR code</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="qr-code-container mb-3">
+                        <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code" class="img-fluid">
+                    </div>
+                    <p class="card-text">This QR code links to:<br><strong>{{ link.generate_full_url }}</strong></p>
+                    <div class="btn-group mt-3">
+                        <button class="btn btn-outline-primary copy-btn" data-clipboard-text="{{ link.generate_full_url }}">
+                            <i class="bi bi-clipboard"></i> Copy Link
                         </button>
+                        <a href="{{ link.generate_full_url }}" target="_blank" class="btn btn-outline-success">
+                            <i class="bi bi-box-arrow-up-right"></i> Open Link
+                        </a>
+                        <a href="{% url 'referral_system:download_qr_code' link.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-download"></i> Download QR
+                        </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="content-wrapper">
-                        <div class="qr-card text-center">
-                            <h4>{{ link.name }}</h4>
-                            {% if link.partner_name %}
-                                <p>For: {{ link.partner_name }}</p>
-                            {% endif %}
-                            
-                            <div class="qr-container">
-                                <img src="{% url 'referral_system:download_qr_code' link.id %}" alt="QR Code" class="qr-code-img img-fluid">
-                            </div>
-                            
-                            <p class="qr-link">{{ link.generate_full_url }}</p>
-                            
-                            <div class="mb-3">
-                                <p>Scan to get a free insurance quote</p>
-                                {% if link.referral_type == 'business' and link.partner_name %}
-                                    <p>Referred by: {{ link.partner_name }}</p>
-                                {% elif link.referral_type == 'customer' and link.customer_name %}
-                                    <p>Referred by: {{ link.customer_name }}</p>
-                                {% else %}
-                                    <p>Referred by: {{ link.user.get_full_name|default:link.user.username }}</p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="small">
-                                <p class="text-muted">ReferralBoost - Simple Insurance Referrals</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="no-print mt-4 text-center">
-                <a href="{% url 'referral_system:download_qr_code' link.id %}" class="btn btn-primary">
-                    <i class="bi bi-download"></i> Download QR Code
-                </a>
-                <a href="{% url 'referral_system:my_referral_links' %}" class="btn btn-secondary ms-2">
-                    Back to My Links
-                </a>
             </div>
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script>
+    new ClipboardJS('.copy-btn');
+    
+    // Show tooltip when copied
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-check"></i> Copied!';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 1500);
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %} 
