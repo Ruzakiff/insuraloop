@@ -8,6 +8,7 @@ from lead_capture.models import Lead
 from django.urls import reverse
 import qrcode
 import io
+import base64
 
 # Create your views here.
 
@@ -124,9 +125,33 @@ def download_qr_code(request, link_id):
 
 @login_required
 def view_qr_code(request, link_id):
-    """View a QR code for a referral link with print options"""
+    """View QR code for a specific referral link"""
     link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
-    return render(request, 'referral_system/qr_code.html', {'link': link})
+    
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(link.generate_full_url(request))
+    qr.make(fit=True)
+    
+    # Create QR code image
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Save to BytesIO and encode as base64
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    
+    qr_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    
+    return render(request, 'referral_system/qr_code.html', {
+        'link': link,
+        'qr_image': qr_image
+    })
 
 def my_links(request):
     """View all referral links for the logged-in user"""
