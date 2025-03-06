@@ -23,7 +23,7 @@ def register(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             
-            return redirect('referral_system:my_referral_links')
+            return redirect('referral_system:my_links')
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})

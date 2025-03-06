@@ -70,6 +70,11 @@ class Lead(models.Model):
     user_agent = models.TextField(blank=True, null=True)
     is_duplicate = models.BooleanField(default=False)
     
+    # Lead Validation fields
+    validation_score = models.IntegerField(default=0, help_text="Overall quality score (0-100)")
+    validation_details = models.JSONField(blank=True, null=True, help_text="Detailed validation results")
+    validation_timestamp = models.DateTimeField(blank=True, null=True, help_text="When validation was performed")
+    
     # Status tracking
     STATUS_CHOICES = [
         ('new', 'New'),
@@ -96,6 +101,10 @@ class Lead(models.Model):
         return f"{self.name} - {self.get_insurance_type_display()} ({self.get_status_display()})"
     
     def save(self, *args, **kwargs):
+        """Override save method to set default values or perform other actions"""
+        # Debug ZIP code
+        print(f"SAVING LEAD IN MODEL - ZIP CODE: '{self.zip_code}'")
+        
         # If this is a new lead, set the agent from the referral link
         if not self.pk and self.referral_link and not self.agent:
             self.agent = self.referral_link.user
@@ -105,3 +114,13 @@ class Lead(models.Model):
             self.reward_amount = self.referral_link.get_reward_amount()
             
         super().save(*args, **kwargs)
+        
+    @property
+    def quality_level(self):
+        """Return a human-readable quality level based on validation score"""
+        if self.validation_score >= 80:
+            return "High"
+        elif self.validation_score >= 50:
+            return "Medium"
+        else:
+            return "Low"

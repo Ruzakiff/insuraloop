@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'referral_system',
     'accounts',
     'lead_capture',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

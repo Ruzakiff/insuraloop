@@ -20,6 +20,7 @@
                         <th>Phone</th>
                         <th>Insurance Type</th>
                         <th>Date Submitted</th>
+                        <th>Quality</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -31,6 +32,15 @@
                         <td>{{ lead.phone }}</td>
                         <td>{{ lead.get_insurance_type_display }}</td>
                         <td>{{ lead.created_at|date:"M d, Y g:i A" }}</td>
+                        <td>
+                            {% if lead.validation_score >= 80 %}
+                                <span class="badge bg-success">High ({{ lead.validation_score }}%)</span>
+                            {% elif lead.validation_score >= 50 %}
+                                <span class="badge bg-warning text-dark">Medium ({{ lead.validation_score }}%)</span>
+                            {% else %}
+                                <span class="badge bg-danger">Low ({{ lead.validation_score }}%)</span>
+                            {% endif %}
+                        </td>
                         <td>
                             <a href="{% url 'referral_system:view_lead_details' lead.id %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye"></i> View Details

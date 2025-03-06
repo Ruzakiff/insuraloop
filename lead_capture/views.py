@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 import json
+# Import the validation functions
+from lead_validation.views import validate_email_address, validate_phone_number, validate_location, validate_name
 
 @require_http_methods(["GET", "POST"])
 def lead_capture(request, code):
@@ -21,23 +23,48 @@ def lead_capture(request, code):
     
     # For POST requests, process the form submission
     if request.method == 'POST':
-        # Create the lead from form data
+        # Extract form data
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        
+        # Fix: Get the last non-empty ZIP code value
+        zip_codes = request.POST.getlist('zip_code')
+        # Find the last non-empty value in the list
+        zip_code = next((code for code in reversed(zip_codes) if code), '')
+        
+        print(f"ZIP CODE LIST: {zip_codes}")
+        print(f"SELECTED ZIP CODE: '{zip_code}'")
+        
+        insurance_type = request.POST.get('insurance_type')
+        preferred_contact = request.POST.get('preferred_contact', 'phone')
+        
+        # Debug - print what we're receiving
+        print(f"FORM DATA: name={name}, email={email}, phone={phone}")
+        print(f"ZIP CODE: '{zip_code}'")  # Print with quotes to see if it's empty or whitespace
+        print(f"REQUEST POST DATA: {request.POST}")  # Print all POST data
+        
+        # Validate required fields
+        if not (name and email and phone):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'lead_capture/lead_form.html', {'code': code})
+        
+        # Create the lead from form data (passing validation)
         lead = Lead(
             referral_link=link,
             agent=link.user,
-            name=request.POST.get('name', ''),
-            email=request.POST.get('email', ''),
-            phone=request.POST.get('phone', ''),
-            insurance_type=request.POST.get('insurance_type', 'auto'),
-            zip_code=request.POST.get('zip_code', ''),
-            state=request.POST.get('state', ''),
+            name=name,
+            email=email,
+            phone=phone,
+            insurance_type=insurance_type,
+            zip_code=zip_code,
             
             # Basic information
             address=request.POST.get('address', ''),
             notes=request.POST.get('notes', ''),
             
             # Contact preferences
-            preferred_contact_method=request.POST.get('preferred_contact_method', 'phone'),
+            preferred_contact_method=preferred_contact,
             preferred_time=request.POST.get('preferred_time', ''),
             
             # Tracking information
@@ -45,8 +72,11 @@ def lead_capture(request, code):
             user_agent=request.META.get('HTTP_USER_AGENT', None),
         )
         
+        # Debug - print lead object before saving
+        print(f"LEAD OBJECT BEFORE SAVE - ZIP CODE: '{lead.zip_code}'")
+        
         # Add insurance type specific fields
-        if request.POST.get('insurance_type') == 'auto':
+        if insurance_type == 'auto':
             lead.vehicle_vin = request.POST.get('vehicle_vin', '')
             lead.vehicle_year = request.POST.get('vehicle_year', None)
             lead.vehicle_make = request.POST.get('vehicle_make', '')
@@ -56,7 +86,7 @@ def lead_capture(request, code):
             lead.vehicle_usage = request.POST.get('vehicle_usage', '')
             lead.annual_mileage = request.POST.get('annual_mileage', None)
             
-        elif request.POST.get('insurance_type') == 'home':
+        elif insurance_type == 'home':
             lead.property_type = request.POST.get('property_type', '')
             lead.ownership_status = request.POST.get('ownership_status', '')
             lead.year_built = request.POST.get('year_built', None)
@@ -65,7 +95,7 @@ def lead_capture(request, code):
             lead.num_bedrooms = request.POST.get('num_bedrooms', None)
             lead.num_bathrooms = request.POST.get('num_bathrooms', None)
             
-        elif request.POST.get('insurance_type') == 'business':
+        elif insurance_type == 'business':
             lead.business_name = request.POST.get('business_name', '')
             lead.business_address = request.POST.get('business_address', '')
             lead.industry = request.POST.get('industry', '')
@@ -75,6 +105,10 @@ def lead_capture(request, code):
         
         # Save the lead
         lead.save()
+        
+        # Verify ZIP code was saved correctly by retrieving from DB
+        fresh_lead = Lead.objects.get(id=lead.id)
+        print(f"LEAD FROM DB AFTER SAVE - ZIP CODE: '{fresh_lead.zip_code}'")
         
         # Increment conversions
         link.increment_conversions()
@@ -176,7 +210,44 @@ def step4_confirmation(request, code):
         return redirect('lead_capture:lead_form', code=code)
         
     if request.method == 'POST':
-        # Create the lead from session data
+        # Validate lead information before creating
+        email = request.session.get('email', '')
+        phone = request.session.get('phone', '')
+        zip_code = request.session.get('zip_code', '')
+        state = request.session.get('state', '')
+        name = request.session.get('name', '')
+        
+        # Perform validations
+        email_validation = validate_email_address(email)
+        phone_validation = validate_phone_number(phone)
+        location_validation = validate_location(zip_code, state)
+        name_validation = validate_name(name)
+        
+        # Check if lead passes validation
+        validation_issues = []
+        if not email_validation['overall']:
+            validation_issues.append(f"Email issue: {'Disposable email' if email_validation['is_disposable'] else 'Invalid format'}")
+        if not phone_validation['overall']:
+            validation_issues.append("Phone issue: Invalid or fake number")
+        if not location_validation['valid']:
+            validation_issues.append(f"Location issue: {location_validation['issue']}")
+        if not name_validation['valid']:
+            validation_issues.append(f"Name issue: {name_validation['issue']}")
+        
+        # If there are validation issues, redirect back with errors
+        if validation_issues:
+            for issue in validation_issues:
+                messages.error(request, issue)
+            # Gather all session data for the summary
+            form_data = {k: v for k, v in request.session.items() if not k.startswith('_')}
+            return render(request, 'lead_capture/step4_confirmation.html', {
+                'code': code,
+                'insurance_type': insurance_type,
+                'form_data': form_data,
+                'validation_issues': validation_issues
+            })
+        
+        # Create the lead from session data (passing validation)
         lead = Lead(
             referral_link=link,
             agent=link.user,

@@ -174,6 +174,7 @@ def view_qr_code(request, link_id):
         'qr_image': qr_image
     })
 
+@login_required
 def view_leads(request, link_id):
     """View leads for a specific referral link"""
     link = get_object_or_404(ReferralLink, id=link_id, user=request.user)
@@ -181,10 +182,17 @@ def view_leads(request, link_id):
     
     return render(request, 'referral_system/view_leads.html', {'link': link, 'leads': leads})
 
-def view_lead_details(request, lead_id):
-    """View detailed information for a specific lead"""
-    # Make sure the lead belongs to the current user
-    lead = get_object_or_404(Lead, id=lead_id, referral_link__user=request.user)
+def lead_detail(request, lead_id):
+    """View details of a specific lead"""
+    lead = get_object_or_404(Lead, id=lead_id)
+    
+    # Debug ZIP code in detail view
+    print(f"LEAD DETAIL VIEW - LEAD ID: {lead.id}, ZIP CODE: '{lead.zip_code}'")
+    
+    # Check permissions - only the owner or admin can view
+    if lead.agent != request.user and not request.user.is_staff:
+        messages.error(request, "You don't have permission to view this lead.")
+        return redirect('referral_system:my_links')
     
     return render(request, 'referral_system/lead_details.html', {'lead': lead})
 

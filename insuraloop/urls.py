@@ -27,6 +27,7 @@ urlpatterns = [
     path('leads/', include('lead_capture.urls', namespace='lead_capture')),
     path('accounts/', include('django.contrib.auth.urls')),  # For default auth views
     path('', RedirectView.as_view(pattern_name='referral_system:my_links')),
+    path('api/', include('lead_validation.urls')),
 ]
 
 # Add this for development only

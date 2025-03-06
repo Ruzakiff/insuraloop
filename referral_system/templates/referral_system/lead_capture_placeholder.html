@@ -16,7 +16,11 @@
                         This is a placeholder for the lead capture form. In the full implementation, 
                         you would enter your contact information here to request an insurance quote.
                     </p>
-
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-shield-check"></i> Quality Assurance</h6>
+                        <p class="mb-0">All submissions are validated to ensure high-quality leads. We verify contact information for authenticity before processing.</p>
+                    </div>
                     
                     {% if link.referral_type == 'business' and link.partner_name %}
                         <p class="text-muted">You were referred by: {{ link.partner_name }}</p>
