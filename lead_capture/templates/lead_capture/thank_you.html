@@ -1,34 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %}Thank You{% endblock %}
+{% block title %}Thank You - Insuraloop{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-8">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Thank You!</h3>
+                <div class="card-header bg-success text-white py-3">
+                    <h3 class="text-center mb-0">Thank You!</h3>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title">Your quote request has been submitted</h5>
-                    <p class="card-text">
-                        We've received your information and an insurance agent will contact you shortly
-                        about your {{ lead.get_insurance_type_display|lower }} quote.
-                    </p>
-                    
-                    <div class="alert alert-info mt-4">
-                        <strong>What happens next?</strong>
-                        <p class="mb-0">
-                            An agent will review your information and call you at {{ lead.phone }} 
-                            within 1 business day to discuss your insurance options.
-                        </p>
+                
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
                     </div>
                     
-                    <a href="/" class="btn btn-primary mt-3">Return to Home</a>
+                    <h4 class="mb-3">Your request has been submitted successfully</h4>
+                    
+                    <p class="lead mb-4">
+                        {% if agent %}
+                            {{ agent.first_name }} {{ agent.last_name }} will contact you shortly to discuss your {{ lead.get_insurance_type_display }} options.
+                        {% else %}
+                            One of our agents will contact you shortly to discuss your {{ lead.get_insurance_type_display }} options.
+                        {% endif %}
+                    </p>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Your Information</h5>
+                            <ul class="list-group list-group-flush text-start">
+                                <li class="list-group-item"><strong>Name:</strong> {{ lead.name }}</li>
+                                <li class="list-group-item"><strong>Email:</strong> {{ lead.email }}</li>
+                                <li class="list-group-item"><strong>Phone:</strong> {{ lead.phone }}</li>
+                                <li class="list-group-item"><strong>Insurance Type:</strong> {{ lead.get_insurance_type_display }}</li>
+                                
+                                {% if lead.preferred_contact_method %}
+                                <li class="list-group-item"><strong>Preferred Contact Method:</strong> {{ lead.get_preferred_contact_method_display }}</li>
+                                {% endif %}
+                                
+                                {% if lead.preferred_time %}
+                                <li class="list-group-item"><strong>Preferred Time:</strong> {{ lead.get_preferred_time_display }}</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-4">
+                        If you need to make any changes or have questions, please contact us at:
+                        <br>
+                        <strong>{{ agent.email|default:"support@insuraloop.com" }}</strong>
+                    </p>
+                    
+                    <a href="/" class="btn btn-primary">Return to Home</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<input type="hidden" id="insurance_type" name="insurance_type">
+{% csrf_token %}
 {% endblock %} 

@@ -17,6 +17,8 @@ class ReferralLink(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     clicks = models.IntegerField(default=0)
+    visits = models.PositiveIntegerField(default=0)
+    conversions = models.PositiveIntegerField(default=0)
     
     # New fields with defaults
     name = models.CharField(max_length=100, help_text="Name this link for your reference", default="My Referral Link")
@@ -104,3 +106,9 @@ class ReferralLink(models.Model):
         buffer.seek(0)  # Go to the start of the buffer
         
         return buffer
+
+    def increment_conversions(self):
+        """Increment the conversion count for this referral link"""
+        self.conversions += 1
+        self.save(update_fields=['conversions'])
+        return self.conversions

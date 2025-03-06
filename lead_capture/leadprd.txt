@@ -1,0 +1,150 @@
+📄 Product Requirements Document (PRD)
+1. Overview
+1.1 Product Name:
+
+🚀 SmartQuote Aggregator – AI-Powered Insurance Quote Comparison & Lead Gen for Independent Agents
+1.2 Problem Statement
+
+Customers want fast, transparent insurance quotes without excessive friction. However:
+
+    Traditional insurance quoting forms are too long & repetitive.
+    Many platforms force them to talk to an agent before revealing real quotes.
+    Independent insurance agents struggle to keep up with online competition.
+
+This platform solves both issues by:
+
+    Providing real-time quote comparisons.
+    Pre-filling data to reduce friction.
+    Connecting customers to agents for finalization, not forcing sales.
+    Using AI to assist agents in better customer interactions.
+
+2. Goals & Success Metrics
+2.1 Goals
+
+✅ Reduce form completion time to under 60 seconds.
+✅ Increase agent conversion rates with AI-assisted sales guidance.
+✅ Ensure compliance (lead generation only, no policy binding).
+2.2 Success Metrics
+
+📈 Form completion rate > 70%
+📈 Customer-to-agent engagement > 50%
+📈 Agent close rate > 30%
+3. User Personas
+3.1 Customer Persona
+
+👤 "Emily, The Busy Consumer"
+
+    Needs fast insurance quotes without unnecessary conversations.
+    Doesn’t want to get bombarded with sales calls.
+    Prefers an online-first experience but appreciates human help.
+
+3.2 Independent Insurance Agent Persona
+
+👤 "Mike, The Local Agent"
+
+    Struggles to compete with digital-first insurance platforms.
+    Needs high-quality leads without wasting time.
+    Prefers AI assistance to help close deals faster.
+
+4. System Architecture & Data Pipeline
+4.1 Lead Form Flow (Customer-Facing)
+
+💡 Intelligent Intake System (Minimal Questions, AI-Enhanced)
+
+    User lands on referral link (pre-fills referring agent).
+    Asks for basic info:
+        Auto: ZIP Code + License Plate (or VIN)
+        Home: Address
+        Business: Business Name / EIN
+    Prefill Data from APIs
+        VIN Lookup → Make, Model, Year
+        Property Data → Square Footage, Flood Risk
+        Google My Business API → Business Info
+    Show Personalized Quotes
+        Sorted by price & coverage options.
+    Customer chooses next step:
+    ✅ Talk to an agent (Now or Later)
+    ✅ Reserve a quote (Agent calls later)
+    ✅ Proceed to insurer’s website
+
+4.2 Data Pipeline
+
+    User enters basic details → Prefill APIs fetch additional data.
+    Smart Form dynamically adjusts to missing fields.
+    Quotes retrieved from insurer APIs (Prefill, Embedded, or Manual Submit).
+    Customer selects a quote → Data forwarded to agent.
+    AI generates sales insights for the agent.
+
+5. Agent-Side Experience
+5.1 Lead Dashboard
+
+💻 Agent Portal Features ✅ Live lead tracking (customers who completed the form).
+✅ AI-generated customer insights before the call.
+✅ One-click call & SMS follow-up options.
+✅ Automated reminders for customers who haven’t converted.
+5.2 AI-Assisted Agent Scripting
+
+🤖 AI-Powered Sales Guidance
+
+    Personalized conversation points based on customer data.
+    Objection handling assistance.
+        "The customer is price-sensitive. Explain the lower deductible trade-off."
+    AI-generated follow-up messages.
+        "Hey Emily, I see you reserved a quote for $XX. Let’s finalize it today!"
+
+6. Compliance & Legal Considerations
+
+⚖️ Key Compliance Rules ✅ We only generate leads.
+✅ No binding policies or direct payments.
+✅ No "steering" users toward specific insurers.
+✅ Explicit opt-in for follow-up communication.
+
+🔹 Required Legal Disclaimers
+
+    "Quotes are estimates and not final policy offers."
+    "By submitting, you consent to being contacted by a licensed agent."
+
+7. Revenue Model
+
+💰 Monetization Strategy
+
+    Lead-Based Pricing
+        Agents pay per successful lead.
+    Subscription for Agent Tools
+        AI-powered sales assistance & CRM.
+    Premium Placement for Insurers
+        (As long as it doesn’t violate compliance.)
+
+8. Tech Stack & Implementation
+8.1 Frontend
+
+🖥️ Customer Side
+
+    Next.js / React
+    Tailwind CSS for sleek UI
+
+💻 Agent Dashboard
+
+    React Admin Panel
+    WebSockets for live lead updates
+
+8.2 Backend
+
+⚙️ Core API
+
+    Django + FastAPI
+    Redis (Caching for fast quote retrieval)
+
+8.3 Integrations
+
+🔗 External APIs
+
+    DMV VIN Lookup
+    Zillow / Property API
+    Google My Business API
+    Insurance Company APIs (Prefill, Embedded, etc.)
+
+🤖 AI Services
+
+    OpenAI GPT (Agent Script Assistance)
+    Twilio (SMS & Call Reminders)

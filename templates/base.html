@@ -25,9 +25,11 @@
                             <a class="nav-link" href="{% url 'referral_system:my_referral_links' %}">My Referrals</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">My Profile</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
                         </li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">My Profile</a></li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
