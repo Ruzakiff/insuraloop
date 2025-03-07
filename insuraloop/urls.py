@@ -24,11 +24,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('referrals/', include('referral_system.urls', namespace='referral_system')),
-    path('leads/', include('lead_capture.urls', namespace='lead_capture')),
+    path('leads/', include('lead_capture.urls')),
     path('accounts/', include('django.contrib.auth.urls')),  # For default auth views
     path('', RedirectView.as_view(pattern_name='referral_system:my_links')),
-    path('api/', include('lead_validation.urls')),
-    path('', include('lead_validation.urls', namespace='lead_validation')),
+    
+    # Use only one inclusion of lead_validation.urls
+    path('', include('lead_validation.urls')),  # Include at root level
+    
+    # Remove or comment out this line to avoid namespace conflict
+    # path('api/', include('lead_validation.urls')),
 ]
 
 # Add this for development only

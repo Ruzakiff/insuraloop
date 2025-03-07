@@ -6,3 +6,6 @@ openai
 jsonfield
 dnspython
 # django-cors-headers
+fuzzywuzzy
+python-Levenshtein
+tldextract

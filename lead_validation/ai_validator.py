@@ -33,13 +33,58 @@ def analyze_lead_with_ai(lead_data):
         Email: {lead_data.get('email', 'Not provided')}
         Phone: {lead_data.get('phone', 'Not provided')}
         ZIP Code: {lead_data.get('zip_code', 'Not provided')}
-        State: {lead_data.get('state', 'Not provided')}
+        Address: {lead_data.get('address', 'Not provided')}
+        IP Address: {lead_data.get('ip_address', 'Not provided')}
         
-        Provide a JSON response with:
-        1. risk_score: number from 0-100 (higher = more risky)
-        2. issues: list of specific issues detected
-        3. assessment: "low_risk", "medium_risk", or "high_risk"
-        4. confidence: number from 0-100 on confidence in assessment
+        Analyze the lead data and provide a comprehensive assessment in the following JSON format:
+        
+        {{
+          "duplicate_check": {{
+            "is_duplicate": boolean,
+            "confidence": number from 0-100,
+            "matching_lead_ids": [],
+            "matching_fields": []
+          }},
+          
+          "ai_assessment": {{
+            "risk_score": number from 0-100 (higher = more risky),
+            "assessment": "low_risk", "medium_risk", or "high_risk",
+            "confidence": number from 0-100,
+            "issues": [list of specific issues detected],
+            "ai_model": "gpt-4o"
+          }},
+          
+          "email": {{
+            "valid": boolean,
+            "issue": string or null,
+            "domain_risk": "low", "medium", or "high"
+          }},
+          
+          "phone": {{
+            "valid": boolean,
+            "country_code": string or null,
+            "formatted": string or null
+          }},
+          
+          "name": {{
+            "valid": boolean,
+            "name_parts": {{
+              "first_name": string,
+              "last_name": string
+            }}
+          }},
+          
+          "location": {{
+            "valid": boolean,
+            "derived_state": string or null,
+            "matches_ip_location": boolean
+          }},
+          
+          "cross_field": {{
+            "consistent": boolean,
+            "issues": [list of inconsistencies between fields]
+          }}
+        }}
         
         Be especially vigilant for:
         - Disposable emails
@@ -59,10 +104,10 @@ def analyze_lead_with_ai(lead_data):
         response = openai.chat.completions.create(
             model="gpt-4o",  # Use the best available model
             messages=[
-                {"role": "system", "content": "You are a fraud detection expert that analyzes lead data for insurance companies. You only respond with valid JSON."},
+                {"role": "system", "content": "You are a fraud detection expert that analyzes lead data for insurance companies. You only respond with valid JSON that exactly matches the requested format."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.1,  # Low temperature for consistent results
+            temperature=0,  # Low temperature for consistent results
             response_format={"type": "json_object"}
         )
         
@@ -77,7 +122,18 @@ def analyze_lead_with_ai(lead_data):
         print("AI VALIDATION RESULT:")
         print(json.dumps(result, indent=2))
         
-        return result
+        # Ensure result is a valid dictionary before returning
+        if isinstance(result, dict):
+            return result
+        else:
+            logger.error(f"AI returned non-dictionary result: {result}")
+            return {
+                "error": "AI validation returned invalid format",
+                "risk_score": 50,
+                "issues": ["AI validation format error"],
+                "assessment": "medium_risk",
+                "confidence": 0
+            }
     
     except Exception as e:
         print(f"ERROR IN AI VALIDATION: {str(e)}")

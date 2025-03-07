@@ -10,6 +10,8 @@ from django.views.decorators.http import require_http_methods
 import json
 # Import the validation functions
 from lead_validation.validators import validate_email_address, validate_phone_number, validate_location, validate_name
+from lead_validation.utils import validate_and_store_lead_data
+from django.utils import timezone
 
 @require_http_methods(["GET", "POST"])
 def lead_capture(request, code):
@@ -47,6 +49,50 @@ def lead_capture(request, code):
         if not (name and email and phone):
             messages.error(request, 'Please fill in all required fields.')
             return render(request, 'lead_capture/lead_form.html', {'code': code})
+        
+        # Validate lead first
+        temp_lead = Lead(
+            referral_link=link,
+            agent=link.user,
+            name=name,
+            email=email,
+            phone=phone,
+            insurance_type=insurance_type,
+            zip_code=zip_code,
+            
+            # Basic information
+            address=request.POST.get('address', ''),
+            notes=request.POST.get('notes', ''),
+            
+            # Contact preferences
+            preferred_contact_method=preferred_contact,
+            preferred_time=request.POST.get('preferred_time', ''),
+            
+            # Tracking information
+            ip_address=request.META.get('REMOTE_ADDR', None),
+            user_agent=request.META.get('HTTP_USER_AGENT', None),
+        )
+        
+        # Call validation without saving to DB
+        validation_result = validate_and_store_lead_data(temp_lead, save_to_db=False)
+        
+        # Check if this is a duplicate
+        is_duplicate = False
+        if 'duplicate_check' in validation_result['validation_results']:
+            dup_check = validation_result['validation_results']['duplicate_check']
+            is_duplicate = dup_check.get('is_duplicate', False)
+        
+        if is_duplicate and dup_check['confidence'] > 80:
+            # Instead of creating a new lead, get the existing one
+            matching_id = dup_check['matching_lead_ids'][0]
+            lead = Lead.objects.get(id=matching_id)
+            
+            # Maybe update some fields or create a note about the duplicate submission
+            lead.notes = f"{lead.notes}\n[DUPLICATE SUBMISSION: {timezone.now()}]"
+            lead.save(update_fields=['notes'])
+            
+            # Redirect to thank you page with the existing lead ID
+            return redirect('lead_capture:thank_you', lead_id=lead.id)
         
         # Create the lead from form data (passing validation)
         lead = Lead(
@@ -111,9 +157,8 @@ def lead_capture(request, code):
         
         # Now perform validation and store results - FORCE THIS TO RUN!
         print("RUNNING VALIDATION FOR NEW LEAD...")
-        from lead_validation.utils import validate_and_store_lead_data
-        validation_results = validate_and_store_lead_data(lead)
-        print(f"VALIDATION COMPLETE. Score: {validation_results['score']}")
+        validation_result = validate_and_store_lead_data(lead)
+        print(f"VALIDATION COMPLETE. Score: {validation_result['score']}")
         
         # Verify validation was saved
         updated_lead = Lead.objects.get(id=lead.id)

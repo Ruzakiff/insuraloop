@@ -4,9 +4,9 @@ from . import views
 app_name = 'lead_validation'
 
 urlpatterns = [
-    # API endpoint for validating leads via AJAX
+    # API endpoint for validating leads
     path('api/validate-lead/', views.validate_lead_api, name='validate_lead_api'),
     
-    # View for validating an existing lead (this is what the template is looking for)
+    # View for validating an existing lead (using validate_lead as the name to match template)
     path('validate-lead/<int:lead_id>/', views.validate_existing_lead, name='validate_lead'),
 ] 

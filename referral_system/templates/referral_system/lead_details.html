@@ -48,63 +48,152 @@
                         
                         <div class="collapse mt-2" id="validationDetails">
                             <div class="card card-body bg-light">
-                                <h6 class="mb-2">Validation Results:</h6>
-                                <ul class="list-group list-group-flush">
-                                    {% if lead.validation_details.email %}
-                                        <li class="list-group-item bg-light p-2">
-                                            <strong>Email:</strong> 
-                                            {% if lead.validation_details.email.overall %}
-                                                <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
-                                            {% else %}
-                                                <span class="text-danger"><i class="bi bi-exclamation-circle"></i> 
-                                                    {% if lead.validation_details.email.format_valid %}Issue: {% else %}Invalid Format{% endif %}
-                                                    {% if lead.validation_details.email.is_disposable %}Disposable Email{% endif %}
-                                                    {% if lead.validation_details.email.is_role_account %}Role Account{% endif %}
-                                                </span>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                    
-                                    {% if lead.validation_details.phone %}
-                                        <li class="list-group-item bg-light p-2">
-                                            <strong>Phone:</strong> 
-                                            {% if lead.validation_details.phone.overall %}
-                                                <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
-                                            {% else %}
-                                                <span class="text-danger"><i class="bi bi-exclamation-circle"></i> 
-                                                    {% if lead.validation_details.phone.is_obvious_fake %}Fake Number{% endif %}
-                                                    {% if not lead.validation_details.phone.is_valid_format %}Invalid Format{% endif %}
-                                                </span>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                    
-                                    {% if lead.validation_details.name %}
-                                        <li class="list-group-item bg-light p-2">
-                                            <strong>Name:</strong> 
-                                            {% if lead.validation_details.name.valid %}
-                                                <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
-                                            {% else %}
-                                                <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.name.issue }}</span>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                    
-                                    <!-- Add Location validation display -->
-                                    {% if lead.validation_details.location %}
-                                        <li class="list-group-item bg-light p-2">
-                                            <strong>Location:</strong> 
-                                            {% if lead.validation_details.location.valid %}
-                                                <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
-                                                {% if lead.validation_details.location.derived_state %}
-                                                    (State: {{ lead.validation_details.location.derived_state }})
+                                <h6 class="mb-2">Validation Score: {{ lead.validation_score }}%</h6>
+                                
+                                <!-- Duplicate Check -->
+                                {% if lead.validation_details.duplicate_check %}
+                                    <div class="mb-3">
+                                        <h6><i class="bi bi-person-lines-fill"></i> Duplicate Check:</h6>
+                                        {% if lead.validation_details.duplicate_check.is_duplicate %}
+                                            <div class="alert alert-warning">
+                                                <strong>Duplicate Detected!</strong> 
+                                                Confidence: {{ lead.validation_details.duplicate_check.confidence }}%
+                                                {% if lead.validation_details.duplicate_check.matching_lead_ids %}
+                                                    <div>
+                                                        Matching Lead IDs: 
+                                                        {% for lead_id in lead.validation_details.duplicate_check.matching_lead_ids %}
+                                                            <a href="{% url 'referral_system:lead_details' lead_id %}" class="badge bg-info">
+                                                                {{ lead_id }}
+                                                            </a>
+                                                        {% endfor %}
+                                                    </div>
                                                 {% endif %}
-                                            {% else %}
-                                                <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.location.issue }}</span>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-success"><i class="bi bi-check-circle"></i> No duplicates detected</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                <!-- Score Breakdown -->
+                                {% if lead.validation_details.score_breakdown %}
+                                    <div class="mb-3">
+                                        <h6><i class="bi bi-calculator"></i> Score Breakdown:</h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Base Score
+                                                <span class="badge bg-primary rounded-pill">{{ lead.validation_details.score_breakdown.base_score }}</span>
+                                            </li>
+                                            {% if lead.validation_details.score_breakdown.is_duplicate %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    Duplicate Confidence
+                                                    <span class="badge bg-warning text-dark rounded-pill">{{ lead.validation_details.score_breakdown.duplicate_confidence }}%</span>
+                                                </li>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    Duplicate Factor
+                                                    <span class="badge bg-danger rounded-pill">{{ lead.validation_details.score_breakdown.duplicate_factor }}</span>
+                                                </li>
                                             {% endif %}
-                                        </li>
-                                    {% endif %}
-                                </ul>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+                                                <strong>Final Score</strong>
+                                                <span class="badge bg-success rounded-pill">{{ lead.validation_details.score_breakdown.final_score }}</span>
+                                            </li>
+                                        </ul>
+                                        <div class="mt-2">
+                                            <strong>Reason:</strong> {{ lead.validation_details.score_breakdown.explanation }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- AI Assessment -->
+                                {% if lead.validation_details.ai_assessment %}
+                                    <div class="mb-3">
+                                        <h6><i class="bi bi-robot"></i> AI Assessment:</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Risk Level:</span>
+                                            <span class="badge {% if lead.validation_details.ai_assessment.risk_score > 70 %}bg-danger{% elif lead.validation_details.ai_assessment.risk_score > 40 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                                {{ lead.validation_details.ai_assessment.assessment|title }} ({{ lead.validation_details.ai_assessment.risk_score }}/100)
+                                            </span>
+                                        </div>
+                                        
+                                        {% if lead.validation_details.ai_assessment.issues %}
+                                            <div class="mt-2">
+                                                <strong>Issues Detected:</strong>
+                                                <ul class="list-group list-group-flush mt-1">
+                                                    {% for issue in lead.validation_details.ai_assessment.issues %}
+                                                        <li class="list-group-item bg-light py-1">{{ issue }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="mt-2 text-muted">
+                                            <small>AI Confidence: {{ lead.validation_details.ai_assessment.confidence }}% (Model: {{ lead.validation_details.ai_assessment.ai_model }})</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Field Validations -->
+                                {% if lead.validation_details.email or lead.validation_details.phone or lead.validation_details.name or lead.validation_details.location %}
+                                    <div class="mb-3">
+                                        <h6><i class="bi bi-check-square"></i> Field Validations:</h6>
+                                        <ul class="list-group list-group-flush">
+                                            {% if lead.validation_details.email %}
+                                                <li class="list-group-item bg-light p-2">
+                                                    <strong>Email:</strong> 
+                                                    {% if lead.validation_details.email.valid %}
+                                                        <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
+                                                    {% else %}
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.email.issue }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endif %}
+                                            
+                                            {% if lead.validation_details.phone %}
+                                                <li class="list-group-item bg-light p-2">
+                                                    <strong>Phone:</strong> 
+                                                    {% if lead.validation_details.phone.valid %}
+                                                        <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
+                                                    {% else %}
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.phone.issue }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endif %}
+                                            
+                                            {% if lead.validation_details.name %}
+                                                <li class="list-group-item bg-light p-2">
+                                                    <strong>Name:</strong> 
+                                                    {% if lead.validation_details.name.valid %}
+                                                        <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
+                                                    {% else %}
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.name.issue }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endif %}
+                                            
+                                            {% if lead.validation_details.location %}
+                                                <li class="list-group-item bg-light p-2">
+                                                    <strong>Location:</strong> 
+                                                    {% if lead.validation_details.location.valid %}
+                                                        <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
+                                                        {% if lead.validation_details.location.derived_state %}
+                                                            (State: {{ lead.validation_details.location.derived_state }})
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.location.issue }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Validation Timestamp -->
+                                {% if lead.validation_timestamp %}
+                                    <div class="text-muted mt-3">
+                                        <small>Last validated: {{ lead.validation_timestamp|date:"M d, Y g:i A" }}</small>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

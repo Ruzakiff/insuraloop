@@ -1,6 +1,7 @@
 from django.db import models
 from lead_capture.models import Lead
 import jsonfield
+from django.db.models import JSONField
 
 class ValidationSetting(models.Model):
     """Configuration settings for lead validation"""
@@ -54,12 +55,12 @@ class ValidationSetting(models.Model):
 class ValidationLog(models.Model):
     """Log of lead validation attempts"""
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='validation_logs')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=0)
-    details = jsonfield.JSONField(default=dict, blank=True)
+    details = JSONField(default=dict, blank=True)
     
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"Validation for Lead {self.lead.id}: Score {self.score}" 
