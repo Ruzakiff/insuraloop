@@ -119,6 +119,12 @@ def analyze_lead_with_ai(lead_data):
         # Add timestamp and model info
         result['ai_model'] = "gpt-4o"
         
+        # Add field to indicate this is the AI result, not DB duplicate check
+        if "duplicate_check" in result:
+            # Rename the field to avoid confusion with our database check
+            result["ai_duplicate_assessment"] = result.pop("duplicate_check")
+            print("Renamed AI duplicate_check to ai_duplicate_assessment")
+        
         print("AI VALIDATION RESULT:")
         print(json.dumps(result, indent=2))
         

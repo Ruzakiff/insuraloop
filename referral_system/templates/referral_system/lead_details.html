@@ -111,76 +111,98 @@
                                         <h6><i class="bi bi-robot"></i> AI Assessment:</h6>
                                         <div class="d-flex justify-content-between">
                                             <span>Risk Level:</span>
-                                            <span class="badge {% if lead.validation_details.ai_assessment.risk_score > 70 %}bg-danger{% elif lead.validation_details.ai_assessment.risk_score > 40 %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                                                {{ lead.validation_details.ai_assessment.assessment|title }} ({{ lead.validation_details.ai_assessment.risk_score }}/100)
-                                            </span>
+                                            {% with ai=lead.validation_details.ai_assessment.ai_assessment %}
+                                                <span class="badge {% if ai.risk_score > 70 %}bg-danger{% elif ai.risk_score > 40 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                                    {{ ai.assessment|title }} ({{ ai.risk_score }}/100)
+                                                </span>
+                                            {% endwith %}
                                         </div>
                                         
-                                        {% if lead.validation_details.ai_assessment.issues %}
-                                            <div class="mt-2">
-                                                <strong>Issues Detected:</strong>
-                                                <ul class="list-group list-group-flush mt-1">
-                                                    {% for issue in lead.validation_details.ai_assessment.issues %}
-                                                        <li class="list-group-item bg-light py-1">{{ issue }}</li>
-                                                    {% endfor %}
-                                                </ul>
+                                        {% with ai=lead.validation_details.ai_assessment.ai_assessment %}
+                                            {% if ai.issues %}
+                                                <div class="mt-2">
+                                                    <strong>Issues Detected:</strong>
+                                                    <ul class="list-group list-group-flush mt-1">
+                                                        {% for issue in ai.issues %}
+                                                            <li class="list-group-item bg-light py-1">{{ issue }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <div class="mt-2 text-muted">
+                                                <small>AI Confidence: {{ ai.confidence }}% (Model: {{ ai.ai_model }})</small>
                                             </div>
-                                        {% endif %}
-                                        
-                                        <div class="mt-2 text-muted">
-                                            <small>AI Confidence: {{ lead.validation_details.ai_assessment.confidence }}% (Model: {{ lead.validation_details.ai_assessment.ai_model }})</small>
-                                        </div>
+                                        {% endwith %}
                                     </div>
                                 {% endif %}
 
                                 <!-- Field Validations -->
-                                {% if lead.validation_details.email or lead.validation_details.phone or lead.validation_details.name or lead.validation_details.location %}
+                                {% if lead.validation_details.ai_assessment.email or lead.validation_details.ai_assessment.phone or lead.validation_details.ai_assessment.name or lead.validation_details.ai_assessment.location %}
                                     <div class="mb-3">
                                         <h6><i class="bi bi-check-square"></i> Field Validations:</h6>
                                         <ul class="list-group list-group-flush">
-                                            {% if lead.validation_details.email %}
+                                            {% if lead.validation_details.ai_assessment.email %}
                                                 <li class="list-group-item bg-light p-2">
                                                     <strong>Email:</strong> 
-                                                    {% if lead.validation_details.email.valid %}
+                                                    {% if lead.validation_details.ai_assessment.email.valid %}
                                                         <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
                                                     {% else %}
-                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.email.issue }}</span>
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.ai_assessment.email.issue }}</span>
                                                     {% endif %}
                                                 </li>
                                             {% endif %}
                                             
-                                            {% if lead.validation_details.phone %}
+                                            {% if lead.validation_details.ai_assessment.phone %}
                                                 <li class="list-group-item bg-light p-2">
                                                     <strong>Phone:</strong> 
-                                                    {% if lead.validation_details.phone.valid %}
+                                                    {% if lead.validation_details.ai_assessment.phone.valid %}
                                                         <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
                                                     {% else %}
-                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.phone.issue }}</span>
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.ai_assessment.phone.issue }}</span>
                                                     {% endif %}
                                                 </li>
                                             {% endif %}
                                             
-                                            {% if lead.validation_details.name %}
+                                            {% if lead.validation_details.ai_assessment.name %}
                                                 <li class="list-group-item bg-light p-2">
                                                     <strong>Name:</strong> 
-                                                    {% if lead.validation_details.name.valid %}
+                                                    {% if lead.validation_details.ai_assessment.name.valid %}
                                                         <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
                                                     {% else %}
-                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.name.issue }}</span>
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.ai_assessment.name.issue }}</span>
                                                     {% endif %}
                                                 </li>
                                             {% endif %}
                                             
-                                            {% if lead.validation_details.location %}
+                                            {% if lead.validation_details.ai_assessment.location %}
                                                 <li class="list-group-item bg-light p-2">
                                                     <strong>Location:</strong> 
-                                                    {% if lead.validation_details.location.valid %}
+                                                    {% if lead.validation_details.ai_assessment.location.valid %}
                                                         <span class="text-success"><i class="bi bi-check-circle"></i> Valid</span>
-                                                        {% if lead.validation_details.location.derived_state %}
-                                                            (State: {{ lead.validation_details.location.derived_state }})
+                                                        {% if lead.validation_details.ai_assessment.location.derived_state %}
+                                                            (State: {{ lead.validation_details.ai_assessment.location.derived_state }})
                                                         {% endif %}
                                                     {% else %}
-                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.location.issue }}</span>
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ lead.validation_details.ai_assessment.location.issue }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endif %}
+
+                                            {% if lead.validation_details.ai_assessment.cross_field %}
+                                                <li class="list-group-item bg-light p-2">
+                                                    <strong>Cross-Field Validation:</strong> 
+                                                    {% if lead.validation_details.ai_assessment.cross_field.consistent %}
+                                                        <span class="text-success"><i class="bi bi-check-circle"></i> Consistent data</span>
+                                                    {% else %}
+                                                        <span class="text-danger"><i class="bi bi-exclamation-circle"></i> Inconsistent data</span>
+                                                        {% if lead.validation_details.ai_assessment.cross_field.issues %}
+                                                            <ul class="mt-1 mb-0">
+                                                                {% for issue in lead.validation_details.ai_assessment.cross_field.issues %}
+                                                                    <li>{{ issue }}</li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </li>
                                             {% endif %}

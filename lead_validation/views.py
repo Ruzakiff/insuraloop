@@ -100,9 +100,6 @@ def validate_existing_lead(request, lead_id):
         return JsonResponse({'error': 'You do not have permission to validate this lead'}, status=403)
     
     try:
-        # Mark that this is a revalidation to skip self-matching in duplicate check
-        lead._revalidation = True
-        
         # Use our enhanced hybrid validation function - exactly the same as API endpoint
         result = validate_and_store_lead_data(lead)
         
