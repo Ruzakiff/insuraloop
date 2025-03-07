@@ -2,5 +2,7 @@ django
 pillow
 qrcode
 djangorestframework
-# dnspython
+openai
+jsonfield
+dnspython
 # django-cors-headers

@@ -1,157 +1,126 @@
-from django.utils import timezone
-from .models import ValidationSetting, ValidationLog
-from lead_capture.models import Lead
 import logging
+from django.utils import timezone
+from .models import ValidationLog
+from .validators import validate_email_address, validate_phone_number, validate_location, validate_name
+from .ai_validator import analyze_lead_with_ai
 
 logger = logging.getLogger(__name__)
 
-def validate_and_store_lead_data(lead):
+def validate_and_store_lead_data(lead, save_to_db=True):
     """
-    Validates lead data and stores results in the lead model
-    Returns validation results in standard format
-    """
-    try:
-        # Import validation functions here to avoid circular imports
-        from lead_validation.views import validate_email_address, validate_phone_number, validate_location, validate_name
-        
-        print(f"VALIDATING LEAD: {lead.id} - name={lead.name}, email={lead.email}, zip={lead.zip_code}")
-        
-        # Perform validations with error handling
-        try:
-            email_validation = validate_email_address(lead.email)
-        except Exception as e:
-            logger.error(f"Email validation error: {e}")
-            email_validation = {'overall': False, 'format_valid': False, 'is_disposable': False}
-            
-        try:
-            phone_validation = validate_phone_number(lead.phone)
-        except Exception as e:
-            logger.error(f"Phone validation error: {e}")
-            phone_validation = {'overall': False, 'is_valid_format': False, 'is_obvious_fake': False}
-            
-        try:
-            location_validation = validate_location(lead.zip_code)
-        except Exception as e:
-            logger.error(f"Location validation error: {e}")
-            location_validation = {'valid': False, 'issue': 'Validation error'}
-            
-        try:
-            name_validation = validate_name(lead.name)
-        except Exception as e:
-            logger.error(f"Name validation error: {e}")
-            name_validation = {'valid': False, 'issue': 'Validation error'}
-        
-        # Build validation results dictionary in expected format
-        validation_results = {
-            'email': email_validation,
-            'phone': phone_validation,
-            'location': location_validation,
-            'name': name_validation
-        }
-        
-        # Calculate score (0 to 100)
-        score = 0
-        issues = []
-        
-        # Email validation (25 points)
-        if email_validation.get('overall', False):
-            score += 25
-            print("✓ Email validation passed")
-        else:
-            print("✗ Email validation failed")
-            if not email_validation.get('format_valid', True):
-                issues.append("Invalid email format")
-            if email_validation.get('is_disposable', False):
-                issues.append("Disposable email detected")
-        
-        # Phone validation (25 points)
-        if phone_validation.get('overall', False):
-            score += 25
-            print("✓ Phone validation passed")
-        else:
-            print("✗ Phone validation failed")
-            if not phone_validation.get('is_valid_format', True):
-                issues.append("Invalid phone format")
-            if phone_validation.get('is_obvious_fake', False):
-                issues.append("Obviously fake phone pattern")
-        
-        # Location validation (25 points)
-        if location_validation.get('valid', False):
-            score += 25
-            print("✓ Location validation passed")
-        else:
-            print("✗ Location validation failed")
-            if location_validation.get('issue'):
-                issues.append(location_validation['issue'])
-        
-        # Name validation (25 points)
-        if name_validation.get('valid', False):
-            score += 25
-            print("✓ Name validation passed")
-        else:
-            print("✗ Name validation failed")
-            if name_validation.get('issue'):
-                issues.append(name_validation['issue'])
-        
-        print(f"VALIDATION SCORE CALCULATED: {score}")
-        
-        # Store validation results
-        lead.validation_score = score
-        lead.validation_details = validation_results
-        lead.validation_timestamp = timezone.now()
-        
-        # Save the results
-        lead.save()
-        
-        # Get assessment and recommendation based on score
-        if score < 30:
-            assessment = "High Risk"
-            recommendation = "Reject"
-        elif score < 70:
-            assessment = "Medium Risk"
-            recommendation = "Review"
-        else:
-            assessment = "Low Risk"
-            recommendation = "Approve"
-        
-        # Return in original API format
-        return {
-            'score': score,
-            'validations': validation_results,
-            'overall_score': score,
-            'max_score': 100,
-            'issues': issues,
-            'assessment': assessment,
-            'recommendation': recommendation
-        }
+    Main validation workflow:
+    1. Try AI validation first
+    2. Fall back to rule-based validation if needed
+    3. Store results and return assessment
     
+    Args:
+        lead: Lead object to validate
+        save_to_db: Whether to save validation results to database
+    """
+    logger.info(f"Starting validation for lead data: {lead.email}")
+    print(f"VALIDATING LEAD: {getattr(lead, 'id', 'New')} - name={lead.name}, email={lead.email}")
+    
+    # Prepare lead data for validation
+    lead_data = {
+        'name': lead.name,
+        'email': lead.email,
+        'phone': lead.phone,
+        'zip_code': lead.zip_code,
+        'state': getattr(lead, 'state', ''),
+        'address': getattr(lead, 'address', ''),
+        'ip_address': getattr(lead, 'ip_address', ''),
+        'user_agent': getattr(lead, 'user_agent', '')
+    }
+    
+    # First, try AI validation
+    validation_results = {}
+    try:
+        logger.info("Attempting AI validation")
+        print("\n*** CALLING AI VALIDATOR ***\n")
+        
+        ai_assessment = analyze_lead_with_ai(lead_data)
+        validation_results['ai_assessment'] = ai_assessment
+        print(f"AI RESULT: {ai_assessment}")
+        
+        # If AI validation succeeded with good confidence
+        if 'error' not in ai_assessment and ai_assessment.get('confidence', 0) > 50:
+            logger.info(f"Using AI validation with confidence: {ai_assessment.get('confidence')}")
+            # AI returns risk score (higher = worse)
+            # We need to invert for our system (higher = better)
+            score = 100 - ai_assessment.get('risk_score', 50)
+            ai_successful = True
+        else:
+            logger.info("AI validation failed or low confidence, falling back to rules")
+            ai_successful = False
     except Exception as e:
-        logger.error(f"Validation error for lead {lead.id}: {e}")
-        # Fallback response
-        return {
-            'score': 0,
-            'validations': {
-                'email': {'overall': False},
-                'phone': {'overall': False},
-                'location': {'valid': False},
-                'name': {'valid': False}
-            },
-            'overall_score': 0,
-            'max_score': 100,
-            'issues': ["System error during validation"],
-            'assessment': "Error",
-            'recommendation': "Manual Review Required"
-        }
+        logger.error(f"Error during AI validation: {e}")
+        print(f"AI VALIDATION ERROR: {e}")
+        ai_successful = False
+        validation_results['ai_assessment'] = {"error": str(e)}
+    
+    # If AI validation wasn't successful, use rule-based validation
+    if not ai_successful:
+        # Perform standard validations
+        email_result = validate_email_address(lead.email)
+        phone_result = validate_phone_number(lead.phone)
+        location_result = validate_location(lead.zip_code)
+        name_result = validate_name(lead.name)
+        
+        # Store results
+        validation_results.update({
+            'email': email_result,
+            'phone': phone_result,
+            'location': location_result,
+            'name': name_result
+        })
+        
+        # Calculate score (0-100)
+        score = 0
+        score += 25 if email_result.get('valid', False) else 0
+        score += 25 if phone_result.get('valid', False) else 0
+        score += 25 if location_result.get('valid', False) else 0
+        score += 25 if name_result.get('valid', False) else 0
+    
+    print(f"FINAL VALIDATION SCORE: {score}/100")
+    logger.info(f"Validation complete - Score: {score}/100")
+    
+    # Store validation results in lead
+    if save_to_db and hasattr(lead, 'id'):
+        try:
+            lead.validation_score = score
+            lead.validation_details = validation_results
+            lead.validation_timestamp = timezone.now()
+            lead.save(update_fields=['validation_score', 'validation_details', 'validation_timestamp'])
+            
+            # Create validation log
+            ValidationLog.objects.create(
+                lead=lead,
+                score=score,
+                details=validation_results
+            )
+            
+            logger.info(f"Validation data saved for lead ID: {lead.id}")
+        except Exception as e:
+            logger.error(f"Error saving validation data: {e}")
+            print(f"ERROR SAVING VALIDATION: {e}")
+    
+    # Return validation results
+    return {
+        'score': score,
+        'validation_results': validation_results,
+        'lead_id': getattr(lead, 'id', None)
+    }
 
 def fix_missing_validations():
-    """
-    Run this from the Django shell to fix existing leads with missing validation data
-    """
+    """Utility function to fix existing leads with missing validation data"""
+    from lead_capture.models import Lead
+    
     leads_without_validation = Lead.objects.filter(validation_details__isnull=True)
-    print(f"Found {leads_without_validation.count()} leads with missing validation")
+    count = leads_without_validation.count()
+    logger.info(f"Found {count} leads with missing validation")
     
     for lead in leads_without_validation:
-        print(f"Validating lead ID {lead.id}: {lead.name}")
+        logger.info(f"Validating lead ID {lead.id}: {lead.name}")
         validate_and_store_lead_data(lead)
     
-    return f"Validated {leads_without_validation.count()} leads" 
+    return f"Validated {count} leads"

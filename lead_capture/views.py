@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 import json
 # Import the validation functions
-from lead_validation.views import validate_email_address, validate_phone_number, validate_location, validate_name
+from lead_validation.validators import validate_email_address, validate_phone_number, validate_location, validate_name
 
 @require_http_methods(["GET", "POST"])
 def lead_capture(request, code):

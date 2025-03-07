@@ -22,13 +22,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('referrals/', include('referral_system.urls', namespace='referral_system')),
     path('accounts/', include('accounts.urls')),
+    path('referrals/', include('referral_system.urls', namespace='referral_system')),
     path('leads/', include('lead_capture.urls', namespace='lead_capture')),
     path('accounts/', include('django.contrib.auth.urls')),  # For default auth views
     path('', RedirectView.as_view(pattern_name='referral_system:my_links')),
     path('api/', include('lead_validation.urls')),
-    path('validation/', include('lead_validation.urls', namespace='lead_validation')),
+    path('', include('lead_validation.urls', namespace='lead_validation')),
 ]
 
 # Add this for development only

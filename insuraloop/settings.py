@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -178,3 +179,10 @@ CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' is a good default for most sites
 # HTTP only settings - better security but can limit JavaScript access
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = False  # False allows JavaScript to access the CSRF token
+
+# OpenAI API settings
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+print(f"OPENAI API KEY IN SETTINGS: {'CONFIGURED' if OPENAI_API_KEY else 'MISSING'}")
+
+# For testing, you can hardcode the key, but use environment variables in production
+# OPENAI_API_KEY = 'sk-your-key-here'

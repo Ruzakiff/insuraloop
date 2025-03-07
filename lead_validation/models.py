@@ -1,4 +1,6 @@
 from django.db import models
+from lead_capture.models import Lead
+import jsonfield
 
 class ValidationSetting(models.Model):
     """Configuration settings for lead validation"""
@@ -50,19 +52,14 @@ class ValidationSetting(models.Model):
 
 
 class ValidationLog(models.Model):
-    """Log of all validation requests and results"""
-    lead_id = models.IntegerField(blank=True, null=True, help_text="ID of the lead if created")
-    email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=20, blank=True)
-    ip_address = models.GenericIPAddressField(blank=True, null=True)
-    
-    # Validation results
+    """Log of lead validation attempts"""
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='validation_logs')
+    timestamp = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=0)
-    validated_at = models.DateTimeField(auto_now_add=True)
-    results = models.JSONField(blank=True, null=True, help_text="Full validation results")
+    details = jsonfield.JSONField(default=dict, blank=True)
     
-    # Why was lead rejected or flagged?
-    rejection_reason = models.CharField(max_length=255, blank=True, null=True)
+    class Meta:
+        ordering = ['-timestamp']
     
     def __str__(self):
-        return f"Validation #{self.id} - Score: {self.score} - {self.validated_at.strftime('%Y-%m-%d %H:%M')}" 
+        return f"Validation for Lead {self.lead.id}: Score {self.score}" 
