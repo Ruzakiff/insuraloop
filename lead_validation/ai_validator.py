@@ -15,7 +15,9 @@ def analyze_lead_with_ai(lead_data):
     Returns a dict with risk assessment
     """
     print("AI VALIDATOR STARTING - analyzing lead data...")
-    print(f"Lead data received: {lead_data}")
+    insurance_type = lead_data.get('insurance_type', '')
+    print(f"Processing insurance type: {insurance_type}")
+    print(f"Lead data keys: {list(lead_data.keys())}")
     
     if not openai.api_key:
         print("ERROR: OpenAI API key not configured!")
@@ -25,8 +27,9 @@ def analyze_lead_with_ai(lead_data):
     try:
         print(f"Using OpenAI API key: {openai.api_key[:5]}...{openai.api_key[-4:] if len(openai.api_key) > 8 else ''}")
         
-        # Prepare the prompt
-        prompt = f"""
+        # Prepare the prompt with additional fields based on insurance type
+        
+        base_prompt = f"""
         Analyze this lead information for potential fraud or validity issues:
         
         Name: {lead_data.get('name', 'Not provided')}
@@ -35,56 +38,102 @@ def analyze_lead_with_ai(lead_data):
         ZIP Code: {lead_data.get('zip_code', 'Not provided')}
         Address: {lead_data.get('address', 'Not provided')}
         IP Address: {lead_data.get('ip_address', 'Not provided')}
+        Insurance Type: {insurance_type}
+        Notes: {lead_data.get('notes', 'Not provided')}
+        """
+        
+        # Add insurance-specific fields to the prompt
+        if insurance_type == 'auto':
+            auto_details = f"""
+            Auto Insurance Details:
+            Vehicle VIN: {lead_data.get('vehicle_vin', 'Not provided')}
+            Vehicle Year: {lead_data.get('vehicle_year', 'Not provided')}
+            Vehicle Make: {lead_data.get('vehicle_make', 'Not provided')}
+            Vehicle Model: {lead_data.get('vehicle_model', 'Not provided')}
+            Vehicle Usage: {lead_data.get('vehicle_usage', 'Not provided')}
+            Annual Mileage: {lead_data.get('annual_mileage', 'Not provided')}
+            Date of Birth: {lead_data.get('date_of_birth', 'Not provided')}
+            Current Insurer: {lead_data.get('current_insurer', 'Not provided')}
+            """
+            base_prompt += auto_details
+            
+        elif insurance_type == 'home':
+            home_details = f"""
+            Home Insurance Details:
+            Property Type: {lead_data.get('property_type', 'Not provided')}
+            Ownership Status: {lead_data.get('ownership_status', 'Not provided')}
+            Year Built: {lead_data.get('year_built', 'Not provided')}
+            Square Footage: {lead_data.get('square_footage', 'Not provided')}
+            Bedrooms: {lead_data.get('num_bedrooms', 'Not provided')}
+            Bathrooms: {lead_data.get('num_bathrooms', 'Not provided')}
+            Current Insurer: {lead_data.get('current_insurer', 'Not provided')}
+            """
+            base_prompt += home_details
+            
+        elif insurance_type == 'business':
+            business_details = f"""
+            Business Insurance Details:
+            Business Name: {lead_data.get('business_name', 'Not provided')}
+            Business Address: {lead_data.get('business_address', 'Not provided')}
+            Industry: {lead_data.get('industry', 'Not provided')}
+            Number of Employees: {lead_data.get('num_employees', 'Not provided')}
+            Annual Revenue: {lead_data.get('annual_revenue', 'Not provided')}
+            Current Insurer: {lead_data.get('current_insurer', 'Not provided')}
+            """
+            base_prompt += business_details
+        
+        # Add the standard JSON request format
+        prompt = base_prompt + """
         
         Analyze the lead data and provide a comprehensive assessment in the following JSON format:
         
-        {{
-          "duplicate_check": {{
+        {
+          "duplicate_check": {
             "is_duplicate": boolean,
             "confidence": number from 0-100,
             "matching_lead_ids": [],
             "matching_fields": []
-          }},
+          },
           
-          "ai_assessment": {{
+          "ai_assessment": {
             "risk_score": number from 0-100 (higher = more risky),
             "assessment": "low_risk", "medium_risk", or "high_risk",
             "confidence": number from 0-100,
             "issues": [list of specific issues detected],
             "ai_model": "gpt-4o"
-          }},
+          },
           
-          "email": {{
+          "email": {
             "valid": boolean,
             "issue": string or null,
             "domain_risk": "low", "medium", or "high"
-          }},
+          },
           
-          "phone": {{
+          "phone": {
             "valid": boolean,
             "country_code": string or null,
             "formatted": string or null
-          }},
+          },
           
-          "name": {{
+          "name": {
             "valid": boolean,
-            "name_parts": {{
+            "name_parts": {
               "first_name": string,
               "last_name": string
-            }}
-          }},
+            }
+          },
           
-          "location": {{
+          "location": {
             "valid": boolean,
             "derived_state": string or null,
             "matches_ip_location": boolean
-          }},
+          },
           
-          "cross_field": {{
+          "cross_field": {
             "consistent": boolean,
             "issues": [list of inconsistencies between fields]
-          }}
-        }}
+          }
+        }
         
         Be especially vigilant for:
         - Disposable emails
@@ -94,6 +143,7 @@ def analyze_lead_with_ai(lead_data):
         - Mismatched location info
         - Mismatches between fields (e.g., email name vs provided name)
         - Common fraud patterns
+        - Inconsistencies in the provided insurance details
         
         Format the response as valid JSON only.
         """

@@ -12,6 +12,10 @@ import json
 from lead_validation.validators import validate_email_address, validate_phone_number, validate_location, validate_name
 from lead_validation.utils import validate_and_store_lead_data
 from django.utils import timezone
+from threading import Thread
+import logging
+
+logger = logging.getLogger(__name__)
 
 @require_http_methods(["GET", "POST"])
 def lead_capture(request, code):
@@ -116,9 +120,9 @@ def lead_capture(request, code):
         # Save the lead
         lead.save()
         
-        # Schedule validation to happen asynchronously (in production this would use a task queue)
-        from threading import Thread
+        # Start validation in a separate thread
         thread = Thread(target=validate_lead_async, args=(lead.id,))
+        thread.daemon = True  # Make thread daemon so it doesn't block program exit
         thread.start()
         
         # Record the conversion for the referral link
@@ -308,7 +312,6 @@ def step4_confirmation(request, code):
         lead.save()
         
         # Schedule validation to happen asynchronously
-        from threading import Thread
         thread = Thread(target=validate_lead_async, args=(lead.id,))
         thread.start()
         
@@ -378,7 +381,12 @@ def test_email(request, lead_id):
 def validate_lead_async(lead_id):
     """Run lead validation in a separate thread"""
     try:
+        from lead_validation.utils import validate_and_store_lead_data
+        from lead_capture.models import Lead
+        
         lead = Lead.objects.get(id=lead_id)
+        logger.info(f"Starting async validation for lead {lead_id} (insurance type: {lead.insurance_type})")
         validate_and_store_lead_data(lead)
+        logger.info(f"Completed async validation for lead {lead_id}")
     except Exception as e:
-        print(f"Error in async validation: {e}")
+        logger.error(f"Error in async validation for lead {lead_id}: {str(e)}")
