@@ -474,95 +474,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get form data
         const form = document.getElementById('lead-form');
-        const formData = new FormData(form);
         
-        // Log the payload to check what's being sent
-        console.log("Form data before submission:");
+        // Log the payload for debugging
+        console.log("Form data being submitted:");
+        const formData = new FormData(form);
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
         }
-        
-        // Extract key fields for validation
-        const payload = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            zip_code: formData.get('zip_code'),
-            state: formData.get('state')
-        };
         
         // Show loading state
         const submitBtn = document.getElementById('submitBtn');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validating...';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
         
-        // Validate the lead data with the API
-        fetch('/api/validate-lead/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-            
-            // Apply field-specific validation styling
-            validateField('email', data.validations);
-            validateField('phone', data.validations);
-            validateField('name', data.validations);
-            
-            // Check validation results
-            if (data.overall_score >= 50) {
-                // Show warning for high-risk submissions
-                const warningHtml = `
-                    <div class="alert alert-warning">
-                        <h5><i class="bi bi-exclamation-triangle"></i> Warning: Possible Issues Detected</h5>
-                        <p>We detected the following potential issues with your submission:</p>
-                        <ul>
-                            ${data.issues.map(issue => `<li>${issue}</li>`).join('')}
-                        </ul>
-                        <p>Would you like to review your information or continue anyway?</p>
-                        <button id="continue-anyway" class="btn btn-warning">Continue Anyway</button>
-                        <button id="review-info" class="btn btn-secondary">Review My Information</button>
-                    </div>
-                `;
-                
-                // Add warning to the form
-                const warningDiv = document.createElement('div');
-                warningDiv.id = 'validation-warning';
-                warningDiv.innerHTML = warningHtml;
-                document.getElementById('step-3').appendChild(warningDiv);
-                
-                // Set up event listeners for the warning buttons
-                document.getElementById('continue-anyway').addEventListener('click', function() {
-                    document.getElementById('validation-warning').remove();
-                    console.log("Submitting form despite warnings...");
-                    form.submit();
-                });
-                
-                document.getElementById('review-info').addEventListener('click', function() {
-                    document.getElementById('validation-warning').remove();
-                });
-                
-            } else {
-                // No major issues, submit the form
-                console.log("Validation passed, submitting form...");
-                form.submit();
-            }
-        })
-        .catch(error => {
-            console.error('Error during validation:', error);
-            // If validation fails, still allow submission
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-            form.submit();
-        });
+        // Submit the form directly without waiting for validation
+        form.submit();
     });
     
     // Insurance type selection

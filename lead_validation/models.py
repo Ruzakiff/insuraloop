@@ -1,6 +1,5 @@
 from django.db import models
 from lead_capture.models import Lead
-import jsonfield
 from django.db.models import JSONField
 
 class ValidationSetting(models.Model):
